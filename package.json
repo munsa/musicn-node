@@ -4,14 +4,17 @@
   "description": "Acoustic fingerprint social network",
   "main": "server.js",
   "dependencies": {
+    "@types/express": "^4.17.0",
     "bcryptjs": "^2.4.3",
     "config": "^3.1.0",
     "express": "^4.17.1",
     "express-validator": "^6.1.1",
     "gravatar": "^1.8.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.6.4",
-    "request": "^2.88.0"
+    "mongoose": "^5.6.6",
+    "request": "^2.88.0",
+    "ts-node-dev": "^1.0.0-pre.40",
+    "typescript": "^3.5.3"
   },
   "devDependencies": {
     "concurrently": "^4.1.1",
@@ -19,7 +22,10 @@
   },
   "scripts": {
     "start": "node server",
-    "server": "nodemon server"
+    "server": "nodemon server",
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
+    "prod": "tsc && node ./build/app.js"
   },
   "repository": {
     "type": "git",
