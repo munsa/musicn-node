@@ -8,7 +8,7 @@ import config = require('config');
 import gravatar = require('gravatar');
 const auth = require('../../middleware/auth');
 
-// @route   POST api/users
+// @route   GET api/users
 // @desc    Register user
 // @access  Public
 router.get('/', auth, async (req: any, res) => {
@@ -22,7 +22,7 @@ router.get('/', auth, async (req: any, res) => {
 });
 
 // @route   POST api/auth
-// @desc    Authenticate user & get token user
+// @desc    Authenticate user & get token
 // @access  Public
 router.post(
   '/',
@@ -45,34 +45,42 @@ router.post(
         return res.status(400).json({ errors: { msg: 'Invalid credentials' } });
       }
 
+      // See if password is correct
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ errors: { msg: 'Invalid credentials' } }); // Same response for security reasons
       }
 
-      // Create payload
-      const payload = {
-        user: {
-          id: user.id
-        }
-      };
-
-      jwt.sign(
-        payload,
-        config.get('jwtSecret'),
-        { expiresIn: 3600 },
-        (err, token) => {
-          if (err) {
-            throw err;
-          }
-          res.json({ token });
-        }
-      );
+      // Generate token
+      generateToken(user, res);
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');
     }
   }
 );
+
+// Function to generate the token. Called when login and create user.
+let generateToken = (user, res) => {
+  // Create payload
+  const payload = {
+    user: {
+      id: user.id
+    }
+  };
+
+  // Sign the token
+  jwt.sign(
+    payload,
+    config.get('jwtSecret'),
+    { expiresIn: 3600 },
+    (err, token) => {
+      if (err) {
+        throw err;
+      }
+      res.json({ token });
+    }
+  );
+};
 
 module.exports = router;
