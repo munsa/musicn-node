@@ -1,3 +1,4 @@
 {
-  "mongoURI": "mongodb+srv://admin:123@owltown-nzmba.mongodb.net/test?retryWrites=true&w=majority"
+  "mongoURI": "mongodb+srv://admin:123@owltown-nzmba.mongodb.net/test?retryWrites=true&w=majority",
+  "jwtSecret": "mysecrettoken"
 }
