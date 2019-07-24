@@ -17,6 +17,7 @@
     "typescript": "^3.5.3"
   },
   "devDependencies": {
+    "@types/config": "0.0.34",
     "concurrently": "^4.1.1",
     "nodemon": "^1.19.1"
   },
