@@ -13,7 +13,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.6.6",
     "request": "^2.88.0",
+    "server": "^1.0.19",
     "ts-node-dev": "^1.0.0-pre.40",
+    "tslint": "^5.18.0",
     "typescript": "^3.5.3"
   },
   "devDependencies": {
@@ -23,10 +25,12 @@
   },
   "scripts": {
     "start": "node server",
-    "server": "nodemon server",
+    "server": "nodemon ./app/app.ts",
     "tsc": "tsc",
-    "dev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
-    "prod": "tsc && node ./build/app.js"
+    "dev-server": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
+    "prod": "tsc && node ./build/app.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
