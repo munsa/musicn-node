@@ -30,7 +30,7 @@ $theme-border-radius: 0;
 $border-radius: $theme-border-radius;
 
 //Body
-$body-bg: $theme-color-white;
+$body-bg: $theme-color-5;
 $body-color: $theme-color-black;
 
 // Button
@@ -40,6 +40,26 @@ $btn-border-radius-sm: $theme-border-radius;
 
 // Card
 $card-bg: $theme-color-1;
+
+// Navbar
+$navbar-nav-link-padding-x: 0.5rem;
+
+// Navbar: Colors for dark background
+$navbar-dark-color: rgba($theme-color-white, 0.5);
+$navbar-dark-hover-color: rgba($theme-color-white, 0.75);
+$navbar-dark-active-color: $theme-color-white;
+$navbar-dark-disabled-color: rgba($theme-color-white, 0.25);
+$navbar-dark-toggler-border-color: rgba($theme-color-white, 0.1);
+
+// Navbar: Colors for light background
+$navbar-light-color: rgba($theme-color-1, 0.5) !default;
+$navbar-light-hover-color: rgba($theme-color-1, 0.7) !default;
+$navbar-light-active-color: rgba($theme-color-1, 0.9) !default;
+$navbar-light-disabled-color: rgba($theme-color-1, 0.3) !default;
+$navbar-light-toggler-border-color: rgba($theme-color-1, 0.1) !default;
+
+$navbar-light-brand-color: $theme-color-white;
+$navbar-light-brand-hover-color: rgba($theme-color-white, 0.75);
 
 // Elements
 body {
