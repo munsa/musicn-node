@@ -30,7 +30,7 @@ $theme-border-radius: 0;
 $border-radius: $theme-border-radius;
 
 //Body
-$body-bg: $theme-color-5;
+$body-bg: $theme-color-4;
 $body-color: $theme-color-black;
 
 // Button
@@ -77,6 +77,10 @@ h1 {
 .container {
   height: 100%;
   align-content: center;
+}
+
+.navbar {
+  background-color: #e85a4f;
 }
 
 @import '../../node_modules/bootstrap/scss/bootstrap';
