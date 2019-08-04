@@ -1,12 +1,11 @@
 import express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
-const User = require('..//../models/User');
+const User = require('../../models/User');
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
 import gravatar = require('gravatar');
-const auth = require('./auth');
 
 // @route   POST api/users
 // @desc    Register user
@@ -14,7 +13,7 @@ const auth = require('./auth');
 router.post(
   '/',
   [
-    check('name', 'Name is required')
+    check('username', 'Username is required')
       .not()
       .isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
@@ -29,7 +28,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
       // See if user already exists
@@ -47,7 +46,7 @@ router.post(
 
       // Create User object
       user = new User({
-        name,
+        username,
         email,
         avatar,
         password
@@ -61,12 +60,35 @@ router.post(
       await user.save();
 
       // Generate token
-      auth.generateToken(user, res);
+      generateToken(user, res);
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');
     }
   }
 );
+
+// TODO: Function to generate the token. Called when login and create user.
+function generateToken(user, res) {
+  // Create payload
+  const payload = {
+    user: {
+      id: user.id
+    }
+  };
+
+  // Sign the token
+  jwt.sign(
+    payload,
+    config.get('jwtSecret'),
+    { expiresIn: 3600 },
+    (err, token) => {
+      if (err) {
+        throw err;
+      }
+      res.json({ token });
+    }
+  );
+}
 
 module.exports = router;

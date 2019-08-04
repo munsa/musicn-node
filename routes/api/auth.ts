@@ -60,8 +60,8 @@ router.post(
   }
 );
 
-// Function to generate the token. Called when login and create user.
-let generateToken = (user, res) => {
+// TODO: Function to generate the token. Called when login and create user.
+function generateToken(user, res) {
   // Create payload
   const payload = {
     user: {
@@ -81,6 +81,6 @@ let generateToken = (user, res) => {
       res.json({ token });
     }
   );
-};
+}
 
 module.exports = router;
