@@ -81,6 +81,7 @@ h1 {
 
 .navbar {
   background-color: #e85a4f;
+  height: 6vh;
 }
 
 @import '../../node_modules/bootstrap/scss/bootstrap';
@@ -90,7 +91,7 @@ h1 {
 /*-------------------------------------------*/
 
 .index {
-  height: 100vh;
+  height: 94vh;
   background: url('../assets/img/photos/index-hands-festival.jpg') no-repeat
     center center/cover;
   background-repeat: no-repeat;
