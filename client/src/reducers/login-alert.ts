@@ -8,7 +8,7 @@ export default function(state = initialState, action) {
     case LoginAlertType.SET_LOGIN_ALERT:
       return [...state, payload];
     case LoginAlertType.REMOVE_LOGIN_ALERT:
-      return state.filter(alert => alert.id !== payload);
+      return state.filter(loginAlert => loginAlert.id !== payload);
   }
   return initialState;
 }

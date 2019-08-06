@@ -2,8 +2,8 @@ import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { setAlert } from '../../actions/login-alert';
-import Alert from '../layout/Alert';
+import { setLoginAlert } from '../../actions/login-alert';
+import Alert from '../layout/LoginAlert';
 import PropTypes from 'prop-types';
 
 const Register = ({ setAlert }) => {
@@ -23,7 +23,7 @@ const Register = ({ setAlert }) => {
   async function onSubmit(event: any) {
     event.preventDefault();
     if (password !== passwordRepeat) {
-      setAlert('Passwords do not match', 'danger');
+      setLoginAlert('Passwords do not match', 'danger');
     } else {
       const newUser = {
         username,
@@ -139,10 +139,10 @@ const Register = ({ setAlert }) => {
 };
 
 Register.protoTypes = {
-  setAlert: PropTypes.func.isRequired
+  setLoginAlert: PropTypes.func.isRequired
 };
 
 export default connect(
   null,
-  { setAlert }
+  { setLoginAlert }
 )(Register);
