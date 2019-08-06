@@ -3,11 +3,18 @@
 /*-------------------------------------------*/
 
 //Color
-$theme-color-1: #eae7dc;
+/*$theme-color-1: #eae7dc;
 $theme-color-2: #d8c3a5;
 $theme-color-3: #8e8d8a;
 $theme-color-4: #e98074;
-$theme-color-5: #e85a4f;
+$theme-color-5: #e85a4f;*/
+
+$theme-color-1: #a4b3b6;
+$theme-color-2: #2a1b3d;
+$theme-color-3: #d83f87;
+$theme-color-4: #8265a7;
+$theme-color-5: #44318d;
+
 $theme-color-white: #f6f5f1;
 $theme-color-black: #1c1c1b;
 
@@ -80,7 +87,7 @@ h1 {
 }
 
 .navbar {
-  background-color: #e85a4f;
+  background-color: $theme-color-5;
   height: 6vh;
 }
 
@@ -92,8 +99,9 @@ h1 {
 
 .index {
   height: 94vh;
-  background: url('../assets/img/photos/index-hands-festival.jpg') no-repeat
-    center center/cover;
+  /*background: url('../assets/img/photos/index-hands-festival.jpg') no-repeat
+    center center/cover;*/
+  background: url('../assets/img/photos/tori.jpg') no-repeat center center/cover;
   background-repeat: no-repeat;
   background-size: 1920px 1280px;
 }

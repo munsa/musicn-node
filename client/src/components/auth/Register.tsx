@@ -1,8 +1,12 @@
 import React, { Fragment, useState } from 'react';
+import { connect } from 'react-redux';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { setAlert } from '../../actions/login-alert';
+import Alert from '../layout/Alert';
+import PropTypes from 'prop-types';
 
-const Register = () => {
+const Register = ({ setAlert }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -19,7 +23,7 @@ const Register = () => {
   async function onSubmit(event: any) {
     event.preventDefault();
     if (password !== passwordRepeat) {
-      console.log('Passwords do not match');
+      setAlert('Passwords do not match', 'danger');
     } else {
       const newUser = {
         username,
@@ -53,6 +57,7 @@ const Register = () => {
                 <div className='form-group text-center'>
                   <h1>OwlTown</h1>
                 </div>
+                <Alert />
                 <div className='form-group'>
                   <div className='inner-addon left-addon'>
                     <i className='fa fa-user' />
@@ -123,7 +128,7 @@ const Register = () => {
                     Register
                   </button>
                 </div>
-                Already have anaccount? <Link to='/login'>Login</Link>
+                Already have an account? <Link to='/login'>Login</Link>
               </form>
             </div>
           </div>
@@ -133,4 +138,11 @@ const Register = () => {
   );
 };
 
-export default Register;
+Register.protoTypes = {
+  setAlert: PropTypes.func.isRequired
+};
+
+export default connect(
+  null,
+  { setAlert }
+)(Register);

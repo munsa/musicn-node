@@ -1,0 +1,4 @@
+export enum LoginAlertType {
+  SET_LOGIN_ALERT = 'SET_LOGIN_ALERT',
+  REMOVE_LOGIN_ALERT = 'REMOVE_LOGIN_ALERT'
+}
