@@ -6,7 +6,7 @@ import { setLoginAlert } from '../../actions/login-alert';
 import Alert from '../layout/LoginAlert';
 import PropTypes from 'prop-types';
 
-const Register = ({ setAlert }) => {
+const Register = ({ setLoginAlert }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
