@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { setLoginAlert } from '../../actions/login-alert';
+import { register } from '../../actions/auth';
 import Alert from '../layout/LoginAlert';
 import PropTypes from 'prop-types';
 
-const Register = ({ setLoginAlert }) => {
+const Register = ({ setLoginAlert, register }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -25,25 +25,7 @@ const Register = ({ setLoginAlert }) => {
     if (password !== passwordRepeat) {
       setLoginAlert('Passwords do not match', 'danger');
     } else {
-      const newUser = {
-        username,
-        email,
-        password
-      };
-
-      try {
-        const config = {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        };
-        const body = JSON.stringify(newUser);
-
-        const res = await axios.post('api/users', body, config);
-        console.log(res.data);
-      } catch (err) {
-        console.log(err.response.data);
-      }
+      register({ username, email, password });
     }
   }
 
@@ -68,7 +50,6 @@ const Register = ({ setLoginAlert }) => {
                       name='username'
                       value={username}
                       onChange={e => onChange(e)}
-                      required
                     />
                   </div>
                 </div>
@@ -82,7 +63,6 @@ const Register = ({ setLoginAlert }) => {
                       name='email'
                       value={email}
                       onChange={e => onChange(e)}
-                      required
                     />
                   </div>
                 </div>
@@ -96,7 +76,6 @@ const Register = ({ setLoginAlert }) => {
                       name='password'
                       value={password}
                       onChange={e => onChange(e)}
-                      required
                     />
                   </div>
                 </div>
@@ -110,7 +89,6 @@ const Register = ({ setLoginAlert }) => {
                       name='passwordRepeat'
                       value={passwordRepeat}
                       onChange={e => onChange(e)}
-                      required
                     />
                   </div>
                 </div>
@@ -139,10 +117,11 @@ const Register = ({ setLoginAlert }) => {
 };
 
 Register.protoTypes = {
-  setLoginAlert: PropTypes.func.isRequired
+  setLoginAlert: PropTypes.func.isRequired,
+  register: PropTypes.array.isRequired
 };
 
 export default connect(
   null,
-  { setLoginAlert }
+  { setLoginAlert, register }
 )(Register);

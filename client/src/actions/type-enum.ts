@@ -2,3 +2,8 @@ export enum LoginAlertType {
   SET_LOGIN_ALERT = 'SET_LOGIN_ALERT',
   REMOVE_LOGIN_ALERT = 'REMOVE_LOGIN_ALERT'
 }
+
+export enum RegisterType {
+  REGISTER_SUCCESS = 'REGISTER_SUCCESS',
+  REGISTER_FAIL = 'REGISTER_FAIL'
+}

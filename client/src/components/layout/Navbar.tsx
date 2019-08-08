@@ -32,7 +32,7 @@ const Navbar = () => {
             data-toggle='dropdown'
             aria-haspopup='true'
             aria-expanded='false'
-            href='#'
+            href='/'
           >
             <i className='fa fa-bars' />
           </a>
