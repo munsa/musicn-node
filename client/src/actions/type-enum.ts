@@ -3,7 +3,9 @@ export enum LoginAlertType {
   REMOVE_LOGIN_ALERT = 'REMOVE_LOGIN_ALERT'
 }
 
-export enum RegisterType {
+export enum AuthType {
   REGISTER_SUCCESS = 'REGISTER_SUCCESS',
-  REGISTER_FAIL = 'REGISTER_FAIL'
+  REGISTER_FAIL = 'REGISTER_FAIL',
+  USER_LOADED = 'USER_LOADED',
+  AUTH_ERROR = 'AUTH_ERROR'
 }

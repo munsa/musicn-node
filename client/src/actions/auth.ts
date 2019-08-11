@@ -1,6 +1,27 @@
 import axios from 'axios';
-import { RegisterType } from './type-enum';
+import { AuthType } from './type-enum';
 import { setLoginAlert } from './login-alert';
+import setAuthToken from '../utils/setAuthToken';
+
+// Load User
+export const loadUser = () => async dispatch => {
+  if (localStorage.token) {
+    setAuthToken(localStorage.token);
+  }
+
+  try {
+    const res = await axios.get('/api/auth');
+
+    dispatch({
+      type: AuthType.USER_LOADED,
+      payload: res.data
+    });
+  } catch (err) {
+    dispatch({
+      type: AuthType.AUTH_ERROR
+    });
+  }
+};
 
 // Register User
 export const register = ({ username, email, password }) => async dispatch => {
@@ -16,7 +37,7 @@ export const register = ({ username, email, password }) => async dispatch => {
     const res = await axios.post('/api/users', body, config);
 
     dispatch({
-      type: RegisterType.REGISTER_SUCCESS,
+      type: AuthType.REGISTER_SUCCESS,
       payload: res.data
     });
   } catch (err) {
@@ -25,6 +46,6 @@ export const register = ({ username, email, password }) => async dispatch => {
     if (errors) {
       errors.forEach(error => dispatch(setLoginAlert(error.msg, 'danger')));
     }
-    dispatch({ type: RegisterType.REGISTER_FAIL });
+    dispatch({ type: AuthType.REGISTER_FAIL });
   }
 };

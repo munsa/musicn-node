@@ -1,4 +1,4 @@
-import { RegisterType } from '../actions/type-enum';
+import { AuthType } from '../actions/type-enum';
 
 const initialState = {
   token: localStorage.getItem('token'),
@@ -11,7 +11,14 @@ export default function(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case RegisterType.REGISTER_SUCCESS:
+    case AuthType.USER_LOADED:
+      return {
+        ...state,
+        isAuthenticated: true,
+        loading: false,
+        user: payload
+      };
+    case AuthType.REGISTER_SUCCESS:
       localStorage.setItem('token', payload.token);
       return {
         ...state,
@@ -19,7 +26,8 @@ export default function(state = initialState, action) {
         isAuthenticated: true,
         loading: false
       };
-    case RegisterType.REGISTER_FAIL:
+    case AuthType.AUTH_ERROR:
+    case AuthType.REGISTER_FAIL:
       localStorage.removeItem('token');
       return {
         ...state,

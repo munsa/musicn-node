@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { setLoginAlert } from '../../actions/login-alert';
 import { register } from '../../actions/auth';
-import Alert from '../layout/LoginAlert';
+import LoginAlert from '../layout/LoginAlert';
 import PropTypes from 'prop-types';
 
 const Register = ({ setLoginAlert, register }) => {
@@ -39,7 +39,7 @@ const Register = ({ setLoginAlert, register }) => {
                 <div className='form-group text-center'>
                   <h1>OwlTown</h1>
                 </div>
-                <Alert />
+                <LoginAlert />
                 <div className='form-group'>
                   <div className='inner-addon left-addon'>
                     <i className='fa fa-user' />
