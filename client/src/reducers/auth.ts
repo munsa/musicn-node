@@ -30,6 +30,7 @@ export default function(state = initialState, action) {
     case AuthType.AUTH_ERROR:
     case AuthType.REGISTER_FAIL:
     case AuthType.LOGIN_FAIL:
+    case AuthType.LOGOUT:
       localStorage.removeItem('token');
       return {
         ...state,

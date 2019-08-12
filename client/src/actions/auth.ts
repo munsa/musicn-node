@@ -80,3 +80,9 @@ export const login = (email, password) => async dispatch => {
     dispatch({ type: AuthType.LOGIN_FAIL });
   }
 };
+
+// Logout
+export const logout = () => dispatch => {
+  console.log('entraaaa');
+  dispatch({ type: AuthType.LOGOUT });
+};
