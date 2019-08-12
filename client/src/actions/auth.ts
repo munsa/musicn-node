@@ -83,6 +83,5 @@ export const login = (email, password) => async dispatch => {
 
 // Logout
 export const logout = () => dispatch => {
-  console.log('entraaaa');
   dispatch({ type: AuthType.LOGOUT });
 };
