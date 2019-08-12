@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Home from './components/layout/Home';
+import PrivateRoute from './components/routing/PrivateRoute';
 import './css/custom.min.css';
 // Redux
 import { Provider } from 'react-redux';
@@ -28,7 +29,7 @@ const App = () => {
           <Route exact path='/register' component={Register} />
           <section className='container'>
             <Switch>
-              <Route exact path='/' component={Home} />
+              <PrivateRoute exact path='/' component={Home} />
             </Switch>
           </section>
         </Fragment>
