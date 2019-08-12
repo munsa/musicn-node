@@ -40,6 +40,8 @@ export const register = ({ username, email, password }) => async dispatch => {
       type: AuthType.REGISTER_SUCCESS,
       payload: res.data
     });
+
+    dispatch(loadUser());
   } catch (err) {
     const errors = err.response.data.errors;
 
@@ -47,5 +49,34 @@ export const register = ({ username, email, password }) => async dispatch => {
       errors.forEach(error => dispatch(setLoginAlert(error.msg, 'danger')));
     }
     dispatch({ type: AuthType.REGISTER_FAIL });
+  }
+};
+
+// Login User
+export const login = (email, password) => async dispatch => {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+
+  const body = JSON.stringify({ email, password });
+
+  try {
+    const res = await axios.post('/api/auth', body, config);
+
+    dispatch({
+      type: AuthType.LOGIN_SUCCESS,
+      payload: res.data
+    });
+
+    dispatch(loadUser());
+  } catch (err) {
+    const errors = err.response.data.errors;
+
+    if (errors) {
+      errors.forEach(error => dispatch(setLoginAlert(error.msg, 'danger')));
+    }
+    dispatch({ type: AuthType.LOGIN_FAIL });
   }
 };

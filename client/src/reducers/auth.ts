@@ -19,6 +19,7 @@ export default function(state = initialState, action) {
         user: payload
       };
     case AuthType.REGISTER_SUCCESS:
+    case AuthType.LOGIN_SUCCESS:
       localStorage.setItem('token', payload.token);
       return {
         ...state,
@@ -28,6 +29,7 @@ export default function(state = initialState, action) {
       };
     case AuthType.AUTH_ERROR:
     case AuthType.REGISTER_FAIL:
+    case AuthType.LOGIN_FAIL:
       localStorage.removeItem('token');
       return {
         ...state,

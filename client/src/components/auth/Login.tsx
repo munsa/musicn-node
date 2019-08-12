@@ -1,8 +1,12 @@
 import React, { Fragment, useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { setLoginAlert } from '../../actions/login-alert';
+import LoginAlert from '../layout/LoginAlert';
+import { login } from '../../actions/auth';
 
-const Login = () => {
+const Login = ({ login, isAuthenticated }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -16,33 +20,12 @@ const Login = () => {
 
   async function onSubmit(event: any) {
     event.preventDefault();
-    const loginUser = {
-      email,
-      password
-    };
+    login(email, password);
+  }
 
-    try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      };
-      const body = JSON.stringify(loginUser);
-
-      const res = await axios.post('api/auth', body, config);
-      console.log(res.data);
-
-      //TODO: TEST
-      const config2 = {
-        headers: {
-          'x-auth-token': res.data.token
-        }
-      };
-      const res2 = await axios.get('api/users', config2);
-      console.log(res2.data);
-    } catch (err) {
-      console.log(err.response.data);
-    }
+  //Redirect if logged in
+  if (isAuthenticated) {
+    return <Redirect to='/' />;
   }
 
   return (
@@ -55,6 +38,7 @@ const Login = () => {
                 <div className='form-group text-center'>
                   <h1>OwlTown</h1>
                 </div>
+                <LoginAlert />
                 <div className='form-group'>
                   <div className='inner-addon left-addon'>
                     <i className='fa fa-envelope' />
@@ -107,4 +91,17 @@ const Login = () => {
   );
 };
 
-export default Login;
+Login.protoTypes = {
+  setLoginAlert: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool
+};
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(
+  mapStateToProps,
+  { setLoginAlert, login }
+)(Login);
