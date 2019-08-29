@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { RecordingType } from './type-enum';
 
-export const startRecordingMicrophone = () => async dispatch => {
+export const sendRecording = () => async dispatch => {
+  console.log('aqui tambien');
   const config = {
     headers: {
       'Content-Type': 'application/json'
@@ -11,11 +12,12 @@ export const startRecordingMicrophone = () => async dispatch => {
   const body = JSON.stringify({});
 
   try {
+    console.log('send');
     const res = await axios.post('/api/recording', body, config);
 
     console.log(res);
     dispatch({
-      type: RecordingType.START_RECORDING_MICROPHONE,
+      type: RecordingType.SEND_RECORDING,
       payload: {}
     });
   } catch (err) {
@@ -23,9 +25,4 @@ export const startRecordingMicrophone = () => async dispatch => {
 
     console.log(errors);
   }
-
-  setTimeout(
-    () => dispatch({ type: RecordingType.STOP_RECORDING_MICROPHONE }),
-    6000
-  );
 };
