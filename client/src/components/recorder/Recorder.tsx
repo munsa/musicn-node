@@ -3,6 +3,8 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { RecordingType } from '../../actions/type-enum';
+import fs from 'fs';
+import path from 'path';
 
 declare var MediaRecorder: any;
 
@@ -19,7 +21,7 @@ const sendRecording = async (dispatch, arrayBuffer) => {
 
     const res = await axios.post(
       '/api/recording',
-      { test: new Buffer(arrayBuffer) },
+      { audio: new Buffer(arrayBuffer) },
       config
     );
 
@@ -51,11 +53,14 @@ const handleRecorder = dispatch => {
       const audioUrl = URL.createObjectURL(audioBlob);
       let arrayBuffer = await new Response(audioBlob).arrayBuffer();
       sendRecording(dispatch, arrayBuffer);
+
+      /*const audio = new Audio(audioUrl);
+      audio.play();*/
     });
 
     setTimeout(() => {
       mediaRecorder.stop();
-    }, 20000);
+    }, 13000);
   });
 };
 
