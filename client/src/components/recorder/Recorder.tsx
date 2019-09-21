@@ -21,7 +21,7 @@ const sendRecording = async (dispatch, arrayBuffer) => {
 
     const res = await axios.post(
       '/api/recording',
-      { audio: new Buffer(new Uint8Array(arrayBuffer)) },
+      new Buffer(new Uint8Array(arrayBuffer)),
       config
     );
 
