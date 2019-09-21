@@ -21,7 +21,7 @@ const sendRecording = async (dispatch, arrayBuffer) => {
 
     const res = await axios.post(
       '/api/recording',
-      { audio: new Buffer(arrayBuffer) },
+      { audio: new Buffer(new Uint8Array(arrayBuffer)) },
       config
     );
 
@@ -49,10 +49,29 @@ const handleRecorder = dispatch => {
     });
 
     mediaRecorder.addEventListener('stop', async () => {
-      const audioBlob = new Blob(audioChunks);
+      console.log(audioChunks);
+      const audioBlob = new Blob(audioChunks, {type: 'audio/x-wav'});
       const audioUrl = URL.createObjectURL(audioBlob);
       let arrayBuffer = await new Response(audioBlob).arrayBuffer();
-      sendRecording(dispatch, arrayBuffer);
+
+      var reader  = new FileReader();
+      reader.onloadend = function () {
+        console.log(reader.result);
+      }
+      reader.readAsDataURL(audioBlob);
+
+
+    console.log(audioBlob.type);
+      // Download audio
+      var url = window.URL.createObjectURL(audioBlob);
+      var a = document.createElement('a');
+      document.body.appendChild(a);
+      a.href = url;
+      a.setAttribute('download', 'audio.wav');
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      await sendRecording(dispatch, arrayBuffer);
 
       /*const audio = new Audio(audioUrl);
       audio.play();*/
@@ -60,7 +79,7 @@ const handleRecorder = dispatch => {
 
     setTimeout(() => {
       mediaRecorder.stop();
-    }, 13000);
+    }, 5000);
   });
 };
 
