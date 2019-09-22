@@ -1,80 +1,49 @@
 import React from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { RecordingType } from '../../actions/type-enum';
-import fs from 'fs';
-import path from 'path';
+import {connect} from 'react-redux';
+import {RecordingType} from '../../actions/type-enum';
 
 declare var MediaRecorder: any;
 
-const sendRecording = async (dispatch, arrayBuffer) => {
-  const config = {
-    headers: {
-      'Content-Type': 'multipart/form-data; boundary=${data._boundary}'
-    }
-  };
-
-  try {
-    var formData: FormData = new FormData();
-    formData.append('audio', arrayBuffer);
-
-    const res = await axios.post(
-      '/api/recording',
-      new Buffer(new Uint8Array(arrayBuffer)),
-      config
-    );
-
-    console.log(res);
-    dispatch({
-      type: RecordingType.SEND_RECORDING,
-      payload: {}
-    });
-  } catch (err) {
-    //const errors = err.response.data.errors;
-
-    console.log(err);
-  }
-};
-
-const handleRecorder = dispatch => {
+const handleRecorder = async(dispatch) => {
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    console.log('entra!!!!');
     const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-
     const audioChunks: any[] = [];
+
+    // Start recording
+    mediaRecorder.start();
+    console.log('Start recording');
+
+    // Save data
     mediaRecorder.addEventListener('dataavailable', event => {
       audioChunks.push(event.data);
     });
 
+    // Stop recording
     mediaRecorder.addEventListener('stop', async () => {
-      console.log(audioChunks);
+      console.log('Stop recording');
       const audioBlob = new Blob(audioChunks, {type: 'audio/x-wav'});
-      const audioUrl = URL.createObjectURL(audioBlob);
-      let arrayBuffer = await new Response(audioBlob).arrayBuffer();
 
-      var reader  = new FileReader();
-      reader.onloadend = function () {
-        console.log(reader.result);
+      const config = { headers: { 'Content-Type': 'multipart/form-data; boundary=${data._boundary}' } };
+
+      try {
+        const res = await axios.post(
+            '/api/recording',
+            audioBlob,
+            config
+        );
+
+        console.log(res);
+
+        dispatch({
+          type: RecordingType.SEND_RECORDING,
+          payload: {}
+        });
+      } catch (err) {
+        // const errors = err.response.data.errors;
+        console.log(err);
       }
-      reader.readAsDataURL(audioBlob);
-
-
-    console.log(audioBlob.type);
-      // Download audio
-      var url = window.URL.createObjectURL(audioBlob);
-      var a = document.createElement('a');
-      document.body.appendChild(a);
-      a.href = url;
-      a.setAttribute('download', 'audio.wav');
-      a.click();
-      window.URL.revokeObjectURL(url);
-
-      await sendRecording(dispatch, arrayBuffer);
-
-      /*const audio = new Audio(audioUrl);
-      audio.play();*/
     });
 
     setTimeout(() => {
@@ -83,13 +52,25 @@ const handleRecorder = dispatch => {
   });
 };
 
+// Download audio
+// Useful for developing purposes
+function downloadAudio(audioBlob: Blob): void {
+  const url = window.URL.createObjectURL(audioBlob);
+  const a = document.createElement('a');
+  document.body.appendChild(a);
+  a.href = url;
+  a.setAttribute('download', 'audio.wav');
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
 const Recorder = () => {
   return (
-    <div>
-      <button className='btn' onClick={handleRecorder}>
-        <i className='fa fa-microphone' title='Record' />
-      </button>
-    </div>
+      <div>
+        <button className='btn' onClick={handleRecorder}>
+          <i className='fa fa-microphone' title='Record' />
+        </button>
+      </div>
   );
 };
 
@@ -103,6 +84,6 @@ const mapStateToProps = state => ({
 });
 
 export default connect(
-  mapStateToProps,
-  { sendRecording }
+    mapStateToProps,
+    { handleRecorder }
 )(Recorder);

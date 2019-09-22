@@ -1,7 +1,5 @@
-import fs = require('fs');
 import crypto = require('crypto');
 import request = require('request');
-import path = require('path');
 
 var defaultOptions = {
   host: 'identify-eu-west-1.acrcloud.com',
@@ -37,11 +35,11 @@ function sign(signString, accessSecret) {
 /**
  * Identifies a sample of bytes
  */
-function identify(data, options, cb) {
-  var current_data = new Date();
-  var timestamp = current_data.getTime() / 1000;
+function identify(data, options, callback) {
+  const current_data = new Date();
+  const timestamp = current_data.getTime() / 1000;
 
-  var stringToSign = buildStringToSign(
+  const stringToSign = buildStringToSign(
     'POST',
     options.endpoint,
     options.access_key,
@@ -50,9 +48,9 @@ function identify(data, options, cb) {
     timestamp
   );
 
-  var signature = sign(stringToSign, options.access_secret);
+  const signature = sign(stringToSign, options.access_secret);
 
-  var formData = {
+  const formData = {
     sample: data,
     access_key: options.access_key,
     data_type: options.data_type,
@@ -67,12 +65,9 @@ function identify(data, options, cb) {
       method: 'POST',
       formData: formData
     },
-    cb
+      callback
   );
 }
-
-/*var filename = './sample.wav';
-var bitmap = fs.readFileSync(path.resolve(__dirname, filename));*/
 
 export const identifyAudio = bitmap => {
   identify(new Buffer(bitmap), defaultOptions, function(
