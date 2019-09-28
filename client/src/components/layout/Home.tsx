@@ -1,8 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import Recorder from '../recorder/Recorder';
 
 const Home = () => {
-  return <div>Home</div>;
+  return (
+    <div>
+      <Recorder />
+    </div>
+  );
 };
 
 export default Home;

@@ -13,3 +13,7 @@ export enum AuthType {
   LOGOUT = 'LOGOUT',
   LOGOUT_FAIL = 'LOGOUT_FAIL'
 }
+
+export enum RecordingType {
+  SEND_RECORDING = 'SEND_RECORDING'
+}
