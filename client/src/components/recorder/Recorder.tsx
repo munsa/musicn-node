@@ -34,21 +34,22 @@ const handleRecorder = async(dispatch) => {
             config
         );
 
-        console.log(res);
+        console.log(res.data);
 
-        dispatch({
+        /*dispatch({
           type: RecordingType.SEND_RECORDING,
           payload: {}
-        });
+        });*/
       } catch (err) {
         // const errors = err.response.data.errors;
+        console.log('error');
         console.log(err);
       }
     });
 
     setTimeout(() => {
       mediaRecorder.stop();
-    }, 5000);
+    }, 2000);
   });
 };
 
