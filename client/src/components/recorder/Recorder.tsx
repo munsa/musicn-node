@@ -1,12 +1,13 @@
 import React from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {RecordingType} from '../../actions/type-enum';
+import { connect } from 'react-redux';
+import { RecordingType } from '../../actions/type-enum';
+import Waveform from './Waveform';
 
 declare var MediaRecorder: any;
 
-const handleRecorder = async(dispatch) => {
+const handleRecorder = async dispatch => {
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     const mediaRecorder = new MediaRecorder(stream);
     const audioChunks: any[] = [];
@@ -23,16 +24,16 @@ const handleRecorder = async(dispatch) => {
     // Stop recording
     mediaRecorder.addEventListener('stop', async () => {
       console.log('Stop recording');
-      const audioBlob = new Blob(audioChunks, {type: 'audio/x-wav'});
+      const audioBlob = new Blob(audioChunks, { type: 'audio/x-wav' });
 
-      const config = { headers: { 'Content-Type': 'multipart/form-data; boundary=${data._boundary}' } };
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data; boundary=${data._boundary}'
+        }
+      };
 
       try {
-        const res = await axios.post(
-            '/api/recording',
-            audioBlob,
-            config
-        );
+        const res = await axios.post('/api/recording', audioBlob, config);
 
         console.log(res.data);
 
@@ -67,11 +68,17 @@ function downloadAudio(audioBlob: Blob): void {
 
 const Recorder = () => {
   return (
+    <div>
       <div>
         <button className='btn' onClick={handleRecorder}>
           <i className='fa fa-microphone' title='Record' />
         </button>
       </div>
+
+      <div>
+        <Waveform />
+      </div>
+    </div>
   );
 };
 
@@ -84,7 +91,4 @@ const mapStateToProps = state => ({
   auth: state.auth
 });
 
-export default connect(
-    mapStateToProps,
-    { handleRecorder }
-)(Recorder);
+export default connect(mapStateToProps, { handleRecorder })(Recorder);
