@@ -3,7 +3,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { RecordingType } from '../../actions/type-enum';
-import Waveform from './Waveform';
+import Waveform from './Player';
 
 declare var MediaRecorder: any;
 
