@@ -3,28 +3,34 @@ import soundFile from './nevercatch.mp3';
 
 export default function VisualDemo(props) {
   var audioData;
+  var colors = props.colors;
+  const canvasRef = React.useRef(null);
 
   const initializeAudioAnalyser = () => {
-    const audioFile = new Audio();
     const audioContext = new AudioContext();
+
+    //change for recorded audio
+    const audioFile = new Audio();
     const source = audioContext.createMediaElementSource(audioFile);
+
     const analyser = audioContext.createAnalyser();
     audioFile.src = soundFile;
-    analyser.fftSize = 64;
+    analyser.fftSize = 256;
+    var bufferLength = analyser.frequencyBinCount;
+    var dataArray = new Uint8Array(bufferLength);
+
     source.connect(audioContext.destination);
     source.connect(analyser);
     audioFile.play();
     audioData = analyser;
   };
 
-  const getFrequencyData = styleAdjuster => {
+  const getFrequencyData = () => {
     const bufferLength = 6;
     const amplitudeArray = new Uint8Array(bufferLength);
     audioData.getByteFrequencyData(amplitudeArray);
-    styleAdjuster(amplitudeArray);
+    adjustFreqBandStyle(amplitudeArray);
   };
-
-  const canvasRef = React.useRef(null);
 
   function adjustFreqBandStyle(newAmplitudeData) {
     const canvas = canvasRef.current;
@@ -52,14 +58,14 @@ export default function VisualDemo(props) {
     }
   }
 
-  function runSpectrum() {
-    getFrequencyData(adjustFreqBandStyle);
-    requestAnimationFrame(runSpectrum);
+  function draw() {
+    getFrequencyData();
+    requestAnimationFrame(draw);
   }
 
   function handleStartBottonClick() {
     initializeAudioAnalyser();
-    requestAnimationFrame(runSpectrum);
+    draw();
   }
 
   return (
