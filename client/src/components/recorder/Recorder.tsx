@@ -18,6 +18,22 @@ const Recorder = () => {
       mediaRecorder.start(10);
       console.log('Start recording');
 
+      // Frequency
+      const audioContext = new AudioContext();
+      const audioFile = new Audio();
+      audioFile.src = audioUrl;
+      const source = audioContext.createMediaStreamSource(stream);
+
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+
+      source.connect(audioContext.destination);
+      source.connect(analyser);
+      audioFile.play();
+      audioData = analyser;
+
+      draw();
+
       // Save data
       mediaRecorder.addEventListener('dataavailable', event => {
         audioChunks.push(event.data);
@@ -69,26 +85,6 @@ const Recorder = () => {
   var audioData;
   const canvasRef = React.useRef(null);
 
-  const initializeAudioAnalyser = () => {
-    const audioContext = new AudioContext();
-
-    const audioFile = new Audio();
-    const source = audioContext.createMediaElementSource(audioFile);
-
-    const analyser = audioContext.createAnalyser();
-    // audioFile.src = soundFile;
-
-    audioFile.src = audioUrl;
-    analyser.fftSize = 256;
-    var bufferLength = analyser.frequencyBinCount;
-    var dataArray = new Uint8Array(bufferLength);
-
-    source.connect(audioContext.destination);
-    source.connect(analyser);
-    audioFile.play();
-    audioData = analyser;
-  };
-
   const getFrequencyData = () => {
     const bufferLength = 6;
     const amplitudeArray = new Uint8Array(bufferLength);
@@ -133,19 +129,10 @@ const Recorder = () => {
     requestAnimationFrame(draw);
   };
 
-  const handleStartBottonClick = () => {
-    handleRecorder();
-    setTimeout(function() {
-      initializeAudioAnalyser();
-    }, 1000);
-
-    draw();
-  };
-
   return (
     <div>
       <div>
-        <button id='startButton' onClick={() => handleStartBottonClick()} />
+        <button id='startButton' onClick={() => handleRecorder()} />
       </div>
 
       <canvas
