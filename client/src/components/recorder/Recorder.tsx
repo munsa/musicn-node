@@ -7,12 +7,12 @@ let soundFile = require('./nevercatch.mp3');
 declare var MediaRecorder: any;
 
 const Recorder = () => {
-  const [audioChunks, setAudioChunks] = React.useState([]);
+  const [audioUrl, setAudioUrl] = React.useState('');
 
   const handleRecorder = () => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
       var mediaRecorder = new MediaRecorder(stream);
-      setAudioChunks([]);
+      let audioChunks = [];
 
       // Start recording
       mediaRecorder.start(10);
@@ -20,7 +20,12 @@ const Recorder = () => {
 
       // Save data
       mediaRecorder.addEventListener('dataavailable', event => {
-        setAudioChunks(audioChunks.concat(event.data));
+        audioChunks.push(event.data);
+        setAudioUrl(
+          window.URL.createObjectURL(
+            new Blob(audioChunks, { type: 'audio/x-wav' })
+          )
+        );
       });
 
       // Stop recording
@@ -67,12 +72,13 @@ const Recorder = () => {
   const initializeAudioAnalyser = () => {
     const audioContext = new AudioContext();
 
-    //change for recorded audio
     const audioFile = new Audio();
     const source = audioContext.createMediaElementSource(audioFile);
 
     const analyser = audioContext.createAnalyser();
-    audioFile.src = soundFile;
+    // audioFile.src = soundFile;
+
+    audioFile.src = audioUrl;
     analyser.fftSize = 256;
     var bufferLength = analyser.frequencyBinCount;
     var dataArray = new Uint8Array(bufferLength);
@@ -111,7 +117,13 @@ const Recorder = () => {
       }
 
       ctx.beginPath();
-      ctx.arc(200, 200, 50 + (newAmplitudeData[i] / 255) * 80, 0, 2 * Math.PI);
+      ctx.arc(
+        200,
+        200,
+        10 + (6 - i) * 5 + (newAmplitudeData[i] / 255) * 50,
+        0,
+        2 * Math.PI
+      );
       ctx.fill();
     }
   };
@@ -123,7 +135,10 @@ const Recorder = () => {
 
   const handleStartBottonClick = () => {
     handleRecorder();
-    initializeAudioAnalyser();
+    setTimeout(function() {
+      initializeAudioAnalyser();
+    }, 1000);
+
     draw();
   };
 
