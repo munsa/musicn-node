@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { RecordingType } from '../../actions/type-enum';
-let soundFile = require('./nevercatch.mp3');
+import AudioPlayer from './AudioPlayer';
 declare var MediaRecorder: any;
 
-const Recorder = () => {
+const AudioRecorder = () => {
   const [audioUrl, setAudioUrl] = React.useState('');
+  const [circles, setCircles] = React.useState([]);
+
+  var audioData;
 
   const handleRecorder = () => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -32,7 +34,7 @@ const Recorder = () => {
       audioFile.play();
       audioData = analyser;
 
-      draw();
+      //draw();
 
       // Save data
       mediaRecorder.addEventListener('dataavailable', event => {
@@ -42,6 +44,29 @@ const Recorder = () => {
             new Blob(audioChunks, { type: 'audio/x-wav' })
           )
         );
+
+        const bufferLength = 6;
+        const amplitudeArray = new Uint8Array(bufferLength);
+        audioData.getByteFrequencyData(amplitudeArray);
+        const colours = [
+          '#581845',
+          '#900C3F',
+          '#C70039',
+          '#FF5733',
+          '#FFC300',
+          '#DAF7A6'
+        ];
+        const c = [];
+        for (var i = 0; i < bufferLength; i++) {
+          let circle = {
+            colour: colours[i],
+            radius: amplitudeArray[i]
+          };
+          c.push(circle);
+        }
+        setCircles(c);
+
+        // audioData.getByteFrequencyData(amplitudeArray);
       });
 
       // Stop recording
@@ -82,75 +107,15 @@ const Recorder = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  var audioData;
-  const canvasRef = React.useRef(null);
-
-  const getFrequencyData = () => {
-    const bufferLength = 6;
-    const amplitudeArray = new Uint8Array(bufferLength);
-    audioData.getByteFrequencyData(amplitudeArray);
-    adjustFreqBandStyle(amplitudeArray);
-  };
-
-  const adjustFreqBandStyle = newAmplitudeData => {
-    const canvas = canvasRef.current;
-    var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalAlpha = 0.2;
-    for (var i = 0; i < newAmplitudeData.length; i++) {
-      if (i === 0) {
-        ctx.fillStyle = '#581845';
-      } else if (i === 1) {
-        ctx.fillStyle = '#900C3F';
-      } else if (i === 2) {
-        ctx.fillStyle = '#C70039';
-      } else if (i === 3) {
-        ctx.fillStyle = '#FF5733';
-      } else if (i === 4) {
-        ctx.fillStyle = '#FFC300';
-      } else if (i === 5) {
-        ctx.fillStyle = '#DAF7A6';
-      }
-
-      ctx.beginPath();
-      ctx.arc(
-        200,
-        200,
-        10 + (6 - i) * 5 + (newAmplitudeData[i] / 255) * 50,
-        0,
-        2 * Math.PI
-      );
-      ctx.fill();
-    }
-  };
-
-  const draw = () => {
-    getFrequencyData();
-    requestAnimationFrame(draw);
+  const onPlayCallback = () => {
+    handleRecorder();
   };
 
   return (
     <div>
-      <div>
-        <button id='startButton' onClick={() => handleRecorder()} />
-      </div>
-
-      <canvas
-        ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
-      />
+      <AudioPlayer circles={circles} onPlayCallback={onPlayCallback} />
     </div>
   );
 };
 
-Recorder.proTypes = {
-  logout: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
-};
-
-const mapStateToProps = state => ({
-  auth: state.auth
-});
-
-export default connect(mapStateToProps)(Recorder);
+export default connect()(AudioRecorder);

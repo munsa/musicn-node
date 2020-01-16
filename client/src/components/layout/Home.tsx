@@ -1,10 +1,10 @@
 import React from 'react';
-import Recorder from '../recorder/Recorder';
+import AudioRecorder from '../recorder/AudioRecorder';
 
 const Home = () => {
   return (
     <div>
-      <Recorder />
+      <AudioRecorder />
     </div>
   );
 };
