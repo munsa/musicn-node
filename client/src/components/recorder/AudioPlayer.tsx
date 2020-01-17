@@ -1,16 +1,15 @@
-import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-function AudioPlayer({ circles, onPlayCallback }) {
-  const canvasRef = React.useRef(null);
-
+const AudioPlayer = ({ circles, onPlayCallback }) => {
   useEffect(() => {
-    const a = 1;
-    const b = a + 1;
     draw();
   }, [circles]);
 
+  const canvasRef = React.useRef(null);
+
+  // Draw circles
   const draw = () => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -20,7 +19,7 @@ function AudioPlayer({ circles, onPlayCallback }) {
       circles.forEach(c => {
         ctx.fillStyle = c.colour;
         ctx.beginPath();
-        ctx.arc(200, 200, c.radius, 0, 2 * Math.PI);
+        ctx.arc(200, 200, 20 + (c.radius / 255) * 50, 0, 2 * Math.PI);
         ctx.fill();
       });
     }
@@ -39,7 +38,7 @@ function AudioPlayer({ circles, onPlayCallback }) {
       />
     </div>
   );
-}
+};
 
 AudioPlayer.defaultProps = {
   circles: [
@@ -55,10 +54,10 @@ AudioPlayer.defaultProps = {
 AudioPlayer.propTypes = {
   circles: PropTypes.arrayOf(
     PropTypes.shape({
-      color: PropTypes.string.isRequired,
-      radius: PropTypes.number.isRequired
+      color: PropTypes.string,
+      radius: PropTypes.number
     })
-  ).isRequired
+  )
 };
 
 export default connect()(AudioPlayer);
