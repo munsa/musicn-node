@@ -134,3 +134,37 @@ h1 {
     padding-left: 40px;
   }
 }
+
+/* Audio Player */
+.audio-player {
+  width: 150px;
+  height: 150px;
+  margin: auto;
+  position: relative;
+}
+
+.audio-player-button-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.audio-player-button {
+  color: #900c3f;
+  cursor: pointer;
+}
+
+.audio-player-canvas {
+  width: 150px;
+  height: 150px;
+}
+
+.audio-player-invisible-button {
+  width: 75px;
+  height: 75px;
+  color: white;
+  margin: 4px 4px;
+  border-radius: 50%;
+  opacity: 0;
+}

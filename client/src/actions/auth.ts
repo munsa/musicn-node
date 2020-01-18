@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { AuthType } from './type-enum';
 import { setLoginAlert } from './login-alert';
-import setAuthToken from '../utils/setAuthToken';
+import setAuthToken from '../utils/AuthUtils';
 
 // Load User
 export const loadUser = () => async dispatch => {
