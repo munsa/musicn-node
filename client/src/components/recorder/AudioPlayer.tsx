@@ -19,22 +19,26 @@ const AudioPlayer = ({ circles, onPlayCallback }) => {
       circles.forEach(c => {
         ctx.fillStyle = c.colour;
         ctx.beginPath();
-        ctx.arc(200, 200, 20 + (c.radius / 255) * 50, 0, 2 * Math.PI);
+        ctx.arc(75, 75, 20 + (c.radius / 255) * 50, 0, 2 * Math.PI);
         ctx.fill();
       });
     }
   };
 
   return (
-    <div>
-      <div>
-        <button id='startButton' onClick={() => onPlayCallback()} />
+    <div className='audio-player' onClick={() => onPlayCallback()}>
+      <div className='audio-player-button-container'>
+        <button className='audio-player-invisible-button' />
+      </div>
+      <div className='audio-player-button-container'>
+        <i className='audio-player-button fa fa-2x fa-microphone'></i>
       </div>
 
       <canvas
+        className='audio-player-canvas'
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width='150'
+        height='150'
       />
     </div>
   );

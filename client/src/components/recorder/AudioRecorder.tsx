@@ -57,7 +57,10 @@ const AudioRecorder = () => {
       mediaRecorder.addEventListener('stop', async () => {
         console.log('Stop recording');
 
-        //Stop audio tracks and context
+        // Reset circles
+        setCircles(undefined);
+
+        // Stop audio tracks and context
         stream.getAudioTracks().forEach(track => {
           track.stop();
         });
