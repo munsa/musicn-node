@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import AudioPlayer from './AudioPlayer';
+import RecorderSuccessResultModal from './RecorderSuccessResultModal';
 declare var MediaRecorder: any;
 
 const AudioRecorder = () => {
   const [audioChunks, setAudioChunks] = React.useState([]);
   const [circles, setCircles] = React.useState(undefined);
+  const successModalRef = useRef(null);
 
   const handleRecorder = () => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -75,6 +77,7 @@ const AudioRecorder = () => {
         };
         try {
           const res = await axios.post('/api/recording', audioBlob, config);
+          successModalRef.current.openModal();
         } catch (err) {
           // const errors = err.response.data.errors;
           console.log('error');
@@ -91,6 +94,7 @@ const AudioRecorder = () => {
   return (
     <div>
       <AudioPlayer circles={circles} onPlayCallback={handleRecorder} />
+      <RecorderSuccessResultModal ref={successModalRef} />
     </div>
   );
 };
