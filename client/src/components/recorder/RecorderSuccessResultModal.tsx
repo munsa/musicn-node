@@ -1,4 +1,5 @@
-import React, { useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, forwardRef } from 'react';
+import { connect } from 'react-redux';
 import {
   MDBContainer,
   MDBBtn,
@@ -8,25 +9,24 @@ import {
   MDBModalFooter
 } from 'mdbreact';
 
-const RecorderSuccessResultModal = forwardRef((props, ref) => {
-  const [modal, setModal] = React.useState(false);
-
-  useImperativeHandle(ref, () => ({
-    openModal: () => {
-      setModal(!modal);
+const RecorderSuccessResultModal = ({ result }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  useEffect(() => {
+    if (result) {
+      setIsOpen(!isOpen);
     }
-  }));
+  }, [result]);
 
   const toggle = () => () => {
-    setModal(!modal);
+    setIsOpen(!isOpen);
   };
 
   return (
     <MDBContainer>
-      <MDBModal isOpen={modal} toggle={toggle()} centered>
+      <MDBModal isOpen={isOpen} toggle={toggle} centered>
         <MDBModalHeader toggle={toggle()}>Song found!</MDBModalHeader>
         <MDBModalBody>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+          {result ? result.metadata.timestamp_utc : ''}
         </MDBModalBody>
         <MDBModalFooter>
           <MDBBtn color='secondary' onClick={toggle()}>
@@ -37,6 +37,6 @@ const RecorderSuccessResultModal = forwardRef((props, ref) => {
       </MDBModal>
     </MDBContainer>
   );
-});
+};
 
-export default RecorderSuccessResultModal;
+export default connect()(RecorderSuccessResultModal);
