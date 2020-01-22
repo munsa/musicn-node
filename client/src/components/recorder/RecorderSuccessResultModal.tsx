@@ -21,21 +21,59 @@ const RecorderSuccessResultModal = ({ result }) => {
     setIsOpen(!isOpen);
   };
 
-  return (
+  const Source = ({ source: { artists, track, album } }) => {
+    return (
+      <div>
+        {/* Artists */}
+        <div className='row'>
+          <b className='col text-right'>Artist</b>
+          <div className='col-9 text-left'>
+            {artists.map((a, j) => (
+              <a key={j}>
+                {j > 0 && ', '}
+                {a.name}
+              </a>
+            ))}
+          </div>
+        </div>
+        {/* Track */}
+        <div className='row'>
+          <b className='col text-right'>Track</b>
+          <div className='col-9 text-left'>{track.name}</div>
+        </div>
+        {/* Album */}
+        <div className='row'>
+          <b className='col text-right'>Album</b>
+          <div className='col-9 text-left'>{album.name}</div>
+        </div>
+      </div>
+    );
+  };
+
+  return result ? (
     <MDBContainer>
       <MDBModal isOpen={isOpen} toggle={toggle} centered>
         <MDBModalHeader toggle={toggle()}>Song found!</MDBModalHeader>
         <MDBModalBody>
-          {result ? result.metadata.timestamp_utc : ''}
+          <div>
+            {result.metadata.music.map((m, i) => (
+              <div key={i}>
+                <Source source={m.external_metadata.spotify} />
+                <hr />
+                <Source source={m.external_metadata.deezer} />
+              </div>
+            ))}
+          </div>
         </MDBModalBody>
         <MDBModalFooter>
-          <MDBBtn color='secondary' onClick={toggle()}>
-            Close
+          <MDBBtn color='primary' onClick={toggle()}>
+            Done
           </MDBBtn>
-          <MDBBtn color='primary'>Save changes</MDBBtn>
         </MDBModalFooter>
       </MDBModal>
     </MDBContainer>
+  ) : (
+    ''
   );
 };
 
