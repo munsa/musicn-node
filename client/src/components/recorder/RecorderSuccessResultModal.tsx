@@ -52,14 +52,20 @@ const RecorderSuccessResultModal = ({ result }) => {
 
   return result ? (
     <MDBContainer>
-      <MDBModal isOpen={isOpen} toggle={toggle} centered>
-        <MDBModalHeader toggle={toggle()}>Song found!</MDBModalHeader>
+      <MDBModal isOpen={isOpen} toggle={toggle()} centered>
+        <MDBModalHeader toggle={toggle()}>
+          <div className='text-right'>FOUND!</div>
+        </MDBModalHeader>
         <MDBModalBody>
           <div>
             {result.metadata.music.map((m, i) => (
               <div key={i}>
+                <h1>
+                  <i className='fa fa-spotify'></i> Spotify
+                </h1>
                 <Source source={m.external_metadata.spotify} />
                 <hr />
+                <h1>Deezer</h1>
                 <Source source={m.external_metadata.deezer} />
               </div>
             ))}
