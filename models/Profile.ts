@@ -1,12 +1,14 @@
-import mongoose = require('mongoose');
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
 
-const ProfileSchema = new mongoose.Schema({
+
+const ProfileSchema = new Schema({
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'user'
   },
   recordings: {
-    type: [mongoose.Schema.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     ref: 'recording'
   }
 });

@@ -54,9 +54,3 @@ export function identify(data, cb) {
     formData: formData
   }, cb);
 }
-
-/*export const identifyAudio = (new Buffer(bitmap), function (err, httpResponse, body) {
-  if (err) console.log(err);
-  console.log(body);
-});
-*/

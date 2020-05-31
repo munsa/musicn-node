@@ -4,6 +4,9 @@ import path = require('path');
 import {identify} from '../../services/acousticFingerprintService';
 import {promisify} from 'util';
 import {v4} from 'uuid';
+const auth = require('../../middleware/auth');
+
+const Recording = require('../../models/Recording');
 
 const router = express.Router();
 const writeFile = promisify(fs.writeFile);
@@ -12,7 +15,7 @@ const writeFile = promisify(fs.writeFile);
 // @route   POST api/recording
 // @desc    Test route
 // @access  Public
-router.post('/', (req, res) => {
+router.post('/', auth, async (req: any, res) => {
   let buffer: Buffer = new Buffer(0);
 
   // Receive buffer data event
@@ -21,13 +24,26 @@ router.post('/', (req, res) => {
   });
 
   // End receiving data event
-  req.on('end', async () => {
-    let result = identify(buffer, function (err, httpResponse, body) {
-      if (err) {
-        console.log(err);
+  req.on('end', () => {
+    identify(buffer, async function (err, httpResponse, body) {
+      if (!err) {
+        const result = JSON.parse(body);
+        console.log(result);
+
+        const recording = new Recording({
+          user: req.user.id,
+          artists: result.metadata.music[0].artists.map(a => {return a['name']}).toString(),
+          track: result.metadata.music[0].title,
+          spotifyTrackId: result.metadata.music[0].external_metadata.spotify?.track.id,
+          deezerTrackId: result.metadata.music[0].external_metadata.deezer?.track.id
+        });
+
+        // Save recording in the db
+        await recording.save();
+
+        res.json(result);
       } else {
-        console.log(body);
-        res.json(JSON.parse(body));
+        console.log(err);
       }
     });
   });
