@@ -27,7 +27,7 @@ router.post('/', (req, res) => {
         console.log(err);
       } else {
         console.log(body);
-        res.json({body});
+        res.json(JSON.parse(body));
       }
     });
   });
