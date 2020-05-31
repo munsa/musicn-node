@@ -1,2 +1,2 @@
-# owl-town
-Acoustic fingerprint social network
+# musicn-node
+MUSICN - Social network for music recognition - Node backend
