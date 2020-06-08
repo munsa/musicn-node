@@ -1,26 +1,24 @@
 import express = require('express');
+
 const router = express.Router();
 const auth = require('../../middleware/auth');
-const Profile = require('../../models/Profile');
+const Recording = require('../../models/Recording');
 const User = require('../../models/User');
-const { check, validationResult } = require('express-validator');
+const {check, validationResult} = require('express-validator');
 
-// @route   GET api/profile/current
-// @desc    Get current user's profile
+// @route   GET api/profile/:username
+// @desc    Get profile by username
 // @access  Public
-router.get('/current', auth, async (req: any, res) => {
+router.get('/:username', auth, async ({params: {username}}, res) => {
   try {
-    console.log(req.user);
-    const profile = await Profile.findOne({ user: req.user.id }).populate(
-      'user',
-      ['name', 'avatar']
-    );
+    const user = await User.findOne({username: username});
+    const recordings = await Recording.find({user: user._id}).limit( 10 ).sort( '-date' );
 
-    if (!profile) {
-      return res
-        .status(400)
-        .json({ msg: 'There is no profile for this user ' });
-    }
+    const profile = {
+        user: user,
+        recordings: recordings
+      }
+    res.json(profile);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

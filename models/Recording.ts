@@ -1,20 +1,34 @@
-import mongoose = require('mongoose');
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
 
-const RecoringSchema = new mongoose.Schema({
-  song: {
+const RecordingSchema = new mongoose.Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    required: true
+  },
+  artists: {
     type: String,
     required: true
   },
-  artist: {
+  track: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   date: {
     type: Date,
     required: true,
     default: Date.now
-  }
+  },
+  acrid: {
+    type: String
+  },
+  spotifyTrackId: {
+    type: String
+  },
+  deezerTrackId: {
+    type: String
+  },
 });
 
-module.exports = mongoose.model('recording', RecoringSchema);
+module.exports = mongoose.model('recording', RecordingSchema);
