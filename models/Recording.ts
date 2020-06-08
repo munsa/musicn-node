@@ -20,6 +20,9 @@ const RecordingSchema = new mongoose.Schema({
     required: true,
     default: Date.now
   },
+  acrid: {
+    type: String
+  },
   spotifyTrackId: {
     type: String
   },
