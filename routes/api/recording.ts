@@ -13,10 +13,9 @@ const router = express.Router();
 // @route   POST api/recording
 // @desc    Test route
 // @access  Public
-let cpUpload = upload.fields([{ name: 'audio'}, {name: 'geolocation'}]);
+let cpUpload = upload.fields([{ name: 'audio'}]);
 router.post('/', auth, cpUpload, async (req: any, res) => {
   let buffer: Buffer = req.files.audio[0].buffer;
-  const geolocation = JSON.parse(req.body.geolocation);
 
   identify(buffer, async function (err, httpResponse, body) {
     if (!err) {
@@ -37,6 +36,9 @@ router.post('/', auth, cpUpload, async (req: any, res) => {
 
         // Save recording in the db
         await recording.save();
+
+        // TODO: Return document object instead of the one returned by the API. Save in db the needed info
+        result.recordingId = recording.id;
       }
 
       res.json(result);
@@ -46,17 +48,14 @@ router.post('/', auth, cpUpload, async (req: any, res) => {
   });
 });
 
-router.get('/userRecordings/:user', auth, async (req: any, res) => {
+router.put('/addGeolocation/:idRecording', auth, async ({params: {idRecording}, body: {geolocation}}, res) => {
   try {
-    console.log(req.user);
-    const userRecordings = await Recording.findOne({user: req.user.id});
-    res.json(userRecordings);
+    const recording = await Recording.findByIdAndUpdate(idRecording, {geolocation: geolocation});
+    res.json(recording);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
-
-
 
 module.exports = router;
