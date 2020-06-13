@@ -23,15 +23,27 @@ router.post('/', auth, cpUpload, async (req: any, res) => {
       console.log(result);
 
       if(result.status.code === 0) {
+        const music = result.metadata.music[0];
         const recording = new Recording({
           user: req.user.id,
-          artists: result.metadata.music[0].artists.map(a => {
-            return a['name']
-          }).toString(),
-          track: result.metadata.music[0].title,
-          acrid: result.metadata.music[0].acrid,
-          spotifyTrackId: result.metadata.music[0].external_metadata.spotify?.track.id,
-          deezerTrackId: result.metadata.music[0].external_metadata.deezer?.track.id
+          acrid: music.acrid,
+          genres: music.genres.map(g => { return g['name'] }),
+          releaseDate: Date.parse(music.release_date),
+          acoustId: {
+            artists: music.artists,
+            track: { name: music.title },
+            album: music.album
+          },
+          spotify: {
+            artists: music.external_metadata.spotify?.artists,
+            track: music.external_metadata.spotify?.track,
+            album: music.external_metadata.spotify?.album
+          },
+          deezer: {
+            artists: music.external_metadata.deezer?.artists,
+            track: music.external_metadata.deezer?.track,
+            album: music.external_metadata.deezer?.album
+          }
         });
 
         // Save recording in the db
