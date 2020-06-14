@@ -22,43 +22,57 @@ router.post('/', auth, cpUpload, async (req: any, res) => {
       const result = JSON.parse(body);
       console.log(result);
 
-      if(result.status.code === 0) {
-        const music = result.metadata.music[0];
-        const recording = new Recording({
-          user: req.user.id,
-          acrid: music.acrid,
-          genres: music.genres.map(g => { return g['name'] }),
-          releaseDate: Date.parse(music.release_date),
-          acoustId: {
-            artists: music.artists,
-            track: { name: music.title },
-            album: music.album
-          },
-          spotify: {
-            artists: music.external_metadata.spotify?.artists,
-            track: music.external_metadata.spotify?.track,
-            album: music.external_metadata.spotify?.album
-          },
-          deezer: {
-            artists: music.external_metadata.deezer?.artists,
-            track: music.external_metadata.deezer?.track,
-            album: music.external_metadata.deezer?.album
-          }
-        });
-
-        // Save recording in the db
-        await recording.save();
-
-        // TODO: Return document object instead of the one returned by the API. Save in db the needed info
-        result.recordingId = recording.id;
+      try {
+        switch (result.status.code) {
+          case 0:
+            const recording = await createRecordingObject(req.user.id, result.metadata.music[0]);
+            await recording.save();
+            res.json(recording);
+            break;
+          case 1001:
+            res.status(204).send('No result');
+            break;
+          case 2004:
+            // Can't generate fingerprint
+            res.status(500).send('Can\'t generate fingerprint');
+            break;
+          default:
+            res.status(500).send('Unknown external API error');
+            console.log(err);
+        }
+      } catch (e) {
+        res.status(500).send('Unknown external API error')
+        console.log(e);
       }
-
-      res.json(result);
     } else {
-      console.log(err);
+      res.status(500).send(err);
     }
   });
 });
+
+const createRecordingObject = (idUser, music) => {
+  return new Recording({
+    user: idUser,
+    acrid: music.acrid,
+    genres: music.genres.map(g => { return g['name'] }),
+    releaseDate: Date.parse(music.release_date),
+    acoustId: {
+      artists: music.artists,
+      track: { name: music.title },
+      album: music.album
+    },
+    spotify: {
+      artists: music.external_metadata.spotify?.artists,
+      track: music.external_metadata.spotify?.track,
+      album: music.external_metadata.spotify?.album
+    },
+    deezer: {
+      artists: music.external_metadata.deezer?.artists,
+      track: music.external_metadata.deezer?.track,
+      album: music.external_metadata.deezer?.album
+    }
+  });
+}
 
 router.put('/addGeolocation/:idRecording', auth, async ({params: {idRecording}, body: {geolocation}}, res) => {
   try {
