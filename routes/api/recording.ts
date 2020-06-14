@@ -1,6 +1,9 @@
 import express = require('express');
 import {identify} from '../../services/acousticFingerprintService';
 const auth = require('../../middleware/auth');
+import multer from 'multer';
+let storage = multer.memoryStorage();
+let upload = multer({ storage: storage });
 
 const Recording = require('../../models/Recording');
 
@@ -10,56 +13,75 @@ const router = express.Router();
 // @route   POST api/recording
 // @desc    Test route
 // @access  Public
-router.post('/', auth, async (req: any, res) => {
-  let buffer: Buffer = new Buffer(0);
+let cpUpload = upload.fields([{ name: 'audio'}]);
+router.post('/', auth, cpUpload, async (req: any, res) => {
+  let buffer: Buffer = req.files.audio[0].buffer;
 
-  // Receive buffer data event
-  req.on('data', data => {
-    buffer = Buffer.concat([buffer, data]);
-  });
+  identify(buffer, async function (err, httpResponse, body) {
+    if (!err) {
+      const result = JSON.parse(body);
+      console.log(result);
 
-  // End receiving data event
-  req.on('end', () => {
-    identify(buffer, async function (err, httpResponse, body) {
-      if (!err) {
-        const result = JSON.parse(body);
-        console.log(result);
-
-        if(result.status.code === 0) {
-          const recording = new Recording({
-            user: req.user.id,
-            artists: result.metadata.music[0].artists.map(a => {
-              return a['name']
-            }).toString(),
-            track: result.metadata.music[0].title,
-            acrid: result.metadata.music[0].acrid,
-            spotifyTrackId: result.metadata.music[0].external_metadata.spotify?.track.id,
-            deezerTrackId: result.metadata.music[0].external_metadata.deezer?.track.id
-          });
-
-          // Save recording in the db
-          await recording.save();
+      try {
+        switch (result.status.code) {
+          case 0:
+            const recording = await createRecordingObject(req.user.id, result.metadata.music[0]);
+            await recording.save();
+            res.json(recording);
+            break;
+          case 1001:
+            res.status(204).send('No result');
+            break;
+          case 2004:
+            // Can't generate fingerprint
+            res.status(500).send('Can\'t generate fingerprint');
+            break;
+          default:
+            res.status(500).send('Unknown external API error');
+            console.log(err);
         }
-
-        res.json(result);
-      } else {
-        console.log(err);
+      } catch (e) {
+        res.status(500).send('Unknown external API error')
+        console.log(e);
       }
-    });
+    } else {
+      res.status(500).send(err);
+    }
   });
 });
 
-router.get('/userRecordings/:user', auth, async (req: any, res) => {
+const createRecordingObject = (idUser, music) => {
+  return new Recording({
+    user: idUser,
+    acrid: music.acrid,
+    genres: music.genres.map(g => { return g['name'] }),
+    releaseDate: Date.parse(music.release_date),
+    acoustId: {
+      artists: music.artists,
+      track: { name: music.title },
+      album: music.album
+    },
+    spotify: {
+      artists: music.external_metadata.spotify?.artists,
+      track: music.external_metadata.spotify?.track,
+      album: music.external_metadata.spotify?.album
+    },
+    deezer: {
+      artists: music.external_metadata.deezer?.artists,
+      track: music.external_metadata.deezer?.track,
+      album: music.external_metadata.deezer?.album
+    }
+  });
+}
+
+router.put('/addGeolocation/:idRecording', auth, async ({params: {idRecording}, body: {geolocation}}, res) => {
   try {
-    console.log(req.user);
-    const userRecordings = await Recording.findOne({user: req.user.id});
-    res.json(userRecordings);
+    const recording = await Recording.findByIdAndUpdate(idRecording, {geolocation: geolocation});
+    res.json(recording);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
-
-
 
 module.exports = router;

@@ -57,19 +57,17 @@ export function identify(data, cb) {
     method: 'POST',
     formData: formData
   }, cb);
+}
 
-
-  // Writes a .wav file from the buffer.
+// Writes a .wav file from the buffer
 // Useful for developing purposes
-// Not used in production
-  function writeWavFile(buffer: Buffer) {
-    const messageId = v4();
-    writeFile('./temp/' + messageId + '.wav', new Buffer(buffer), 'base64').then(() => {
-      let filename = './../../temp/' + messageId + '.wav';
-      let bitmap: Buffer = fs.readFileSync(path.resolve(__dirname, filename));
-      //identify(bitmap);
-    }).catch(err => {
-      console.log('Error writing message to file', err);
-    });
-  }
+function writeWavFile(buffer: Buffer) {
+  const messageId = v4();
+  writeFile('./temp/' + messageId + '.wav', new Buffer(buffer), 'base64').then(() => {
+    let filename = './../../temp/' + messageId + '.wav';
+    let bitmap: Buffer = fs.readFileSync(path.resolve(__dirname, filename));
+    //identify(bitmap);
+  }).catch(err => {
+    console.log('Error writing message to file', err);
+  });
 }
