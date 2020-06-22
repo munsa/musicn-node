@@ -27,25 +27,26 @@ router.post('/', auth, cpUpload, async (req: any, res) => {
           case 0:
             const recording = await createRecordingObject(req.user.id, result.metadata.music[0]);
             await recording.save();
+            recording._doc.success = true;
             res.json(recording);
             break;
           case 1001:
-            res.status(204).send('No result');
+            res.json({ recording: {success: false}});
             break;
           case 2004:
             // Can't generate fingerprint
-            res.status(500).send('Can\'t generate fingerprint');
+            res.status(500).send({ alert: { type: 'ERROR', msg: 'Can\'t generate fingerprint' }});
             break;
           default:
-            res.status(500).send('Unknown external API error');
+            res.status(500).send({ alert: { type: 'ERROR', msg: 'Unknown external API error' }});
             console.log(err);
         }
       } catch (e) {
-        res.status(500).send('Unknown external API error')
+        res.status(500).send({ alert: { type: 'ERROR', msg: 'Unknown external API error', detail: e }})
         console.log(e);
       }
     } else {
-      res.status(500).send(err);
+      res.status(500).send({ alert: { type: 'ERROR', msg: 'Unknown external API error', detail: err }});
     }
   });
 });
@@ -54,7 +55,7 @@ const createRecordingObject = (idUser, music) => {
   return new Recording({
     user: idUser,
     acrid: music.acrid,
-    genres: music.genres.map(g => { return g['name'] }),
+    genres: music.genres?.map(g => { return g['name'] }),
     releaseDate: Date.parse(music.release_date),
     acoustId: {
       artists: music.artists,

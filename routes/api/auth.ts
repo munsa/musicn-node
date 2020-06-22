@@ -17,7 +17,7 @@ router.get('/', auth, async (req: any, res) => {
     res.json(user);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).send({ alert: { type: 'ERROR', msg:'Server Error' }});
   }
 });
 
@@ -44,7 +44,7 @@ router.post(
       if (!user) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] });
+          .json({ detail: { type: 'WARNING', msg: 'Invalid credentials' }});
       }
 
       // See if password is correct
@@ -52,14 +52,14 @@ router.post(
       if (!isMatch) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] }); // Same response for security reasons
+          .json({ alert: { type: 'WARNING', msg: 'Invalid credentials' }}); // Same response for security reasons
       }
 
       // Generate token
       generateToken(user, res);
     } catch (err) {
       console.error(err.message);
-      res.status(500).send('Server error');
+      res.status(500).send({alert: { type: 'ERROR', msg: 'Server error', detail: err}});
     }
   }
 );

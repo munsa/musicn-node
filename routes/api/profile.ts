@@ -12,7 +12,7 @@ const {check, validationResult} = require('express-validator');
 router.get('/:username', auth, async ({params: {username}}, res) => {
   try {
     const user = await User.findOne({username: username});
-    const recordings = await Recording.find({user: user._id}).limit( 10 ).sort( '-date' );
+    const recordings = user ? await Recording.find({user: user._id}).limit( 10 ).sort( '-date' ) : '';
 
     const profile = {
         user: user,
@@ -21,7 +21,7 @@ router.get('/:username', auth, async ({params: {username}}, res) => {
     res.json(profile);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send({alert: { type: 'ERROR', msg: 'Server error', detail: err.message }});
   }
 });
 
