@@ -1,5 +1,5 @@
-var express = require('express');
-var connectDB = require('../config/db');
+import express from 'express';
+import connectDB from '../config/db';
 
 const app = express();
 
@@ -7,7 +7,7 @@ const app = express();
 connectDB();
 
 // Init Middleware
-app.use(express.json({ extended: false }));
+app.use(express.json());
 
 app.get('/', (req, res) => res.send('API Running'));
 

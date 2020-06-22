@@ -1,5 +1,5 @@
 import express = require('express');
-import {identify} from '../../services/acousticFingerprintService';
+import {identify} from '../../services/acoustIdService';
 const auth = require('../../middleware/auth');
 import multer from 'multer';
 let storage = multer.memoryStorage();
