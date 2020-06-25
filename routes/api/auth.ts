@@ -6,12 +6,13 @@ import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
 import gravatar = require('gravatar');
+import {handleErrorAsync} from "../../middleware/error";
 const auth = require('../../middleware/auth');
 
 // @route   GET api/auth
 // @desc    Get authenticated user
 // @access  Public
-router.get('/', auth, async (req: any, res) => {
+router.get('/', auth, handleErrorAsync(async (req: any, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
@@ -19,7 +20,7 @@ router.get('/', auth, async (req: any, res) => {
     console.error(err.message);
     res.status(500).send({ alert: { type: 'ERROR', msg:'Server Error' }});
   }
-});
+}));
 
 // @route   POST api/auth
 // @desc    Authenticate user & get token
@@ -30,7 +31,7 @@ router.post(
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password is required').exists()
   ],
-  async (req, res) => {
+  handleErrorAsync(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -62,7 +63,7 @@ router.post(
       res.status(500).send({alert: { type: 'ERROR', msg: 'Server error', detail: err}});
     }
   }
-);
+  ));
 
 // TODO: Function to generate the token. Called when login and create user.
 function generateToken(user, res) {

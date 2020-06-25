@@ -6,6 +6,7 @@ import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
 import gravatar = require('gravatar');
+import {handleErrorAsync} from "../../middleware/error";
 const auth = require('../../middleware/auth');
 
 // @route   POST api/users
@@ -23,7 +24,7 @@ router.post(
       'Please enter a password with 6 or more characters'
     ).isLength({ min: 6 })
   ],
-  async (req, res) => {
+  handleErrorAsync(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -69,7 +70,7 @@ router.post(
       res.status(500).send({alert: { type: 'WARNING', msg: 'Server error' }});
     }
   }
-);
+));
 
 // TODO: Function to generate the token. Called when login and create user.
 function generateToken(user, res) {

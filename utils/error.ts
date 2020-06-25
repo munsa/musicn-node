@@ -26,4 +26,5 @@ export class CustomError extends GeneralError {
 
   static readonly CANT_GENERATE_FINGERPRINT = 'Can\'t generate fingerprint';
   static readonly UNKNOWN_ACOUSTID_API_ERROR = 'Unknown AcoustID error';
+  static readonly USER_NOT_FOUND = 'Unknown AcoustID error';
 }
