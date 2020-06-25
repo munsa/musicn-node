@@ -1,5 +1,6 @@
 import express from 'express';
 import connectDB from '../config/db';
+import {handleErrorAsync} from '../middleware/error'
 
 const app = express();
 
@@ -18,5 +19,4 @@ app.use('/api/profile', require('../routes/api/profile'));
 app.use('/api/recording', require('../routes/api/recording'));
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
