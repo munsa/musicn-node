@@ -1,12 +1,14 @@
 import express = require('express');
-const router = express.Router();
-const { check, validationResult } = require('express-validator');
-const User = require('../../models/User');
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
 import gravatar = require('gravatar');
+
+const router = express.Router();
+const {check, validationResult} = require('express-validator');
+const User = require('../../models/User');
 import {handleErrorAsync} from "../../middleware/error";
+
 const auth = require('../../middleware/auth');
 
 // @route   POST api/users
@@ -22,23 +24,22 @@ router.post(
     check(
       'password',
       'Please enter a password with 6 or more characters'
-    ).isLength({ min: 6 })
+    ).isLength({min: 6})
   ],
   handleErrorAsync(async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+      }
 
-    const { username, email, password } = req.body;
+      const {username, email, password} = req.body;
 
-    try {
       // See if user already exists
-      let user = await User.findOne({ email });
+      let user = await User.findOne({email});
       if (user) {
         return res
           .status(400)
-          .json({ alert: { type: 'WARNING', msg: 'User already exists' }});
+          .json({alert: {type: 'WARNING', msg: 'User already exists'}});
       }
 
       // Get gravatar
@@ -65,12 +66,8 @@ router.post(
 
       // Generate token
       generateToken(user, res);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send({alert: { type: 'WARNING', msg: 'Server error' }});
     }
-  }
-));
+  ));
 
 // TODO: Function to generate the token. Called when login and create user.
 function generateToken(user, res) {
@@ -85,12 +82,12 @@ function generateToken(user, res) {
   jwt.sign(
     payload,
     config.get('jwtSecret'),
-    { expiresIn: 3600 },
+    {expiresIn: 3600},
     (err, token) => {
       if (err) {
         throw err;
       }
-      res.json({ token });
+      res.json({token});
     }
   );
 }

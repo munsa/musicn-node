@@ -1,25 +1,21 @@
 import express = require('express');
-const router = express.Router();
-const { check, validationResult } = require('express-validator');
-const User = require('../../models/User');
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
-import gravatar = require('gravatar');
+
+const router = express.Router();
+const {check, validationResult} = require('express-validator');
+const User = require('../../models/User');
 import {handleErrorAsync} from "../../middleware/error";
+
 const auth = require('../../middleware/auth');
 
 // @route   GET api/auth
 // @desc    Get authenticated user
 // @access  Public
 router.get('/', auth, handleErrorAsync(async (req: any, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send({ alert: { type: 'ERROR', msg:'Server Error' }});
-  }
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
 }));
 
 // @route   POST api/auth
@@ -32,20 +28,19 @@ router.post(
     check('password', 'Password is required').exists()
   ],
   handleErrorAsync(async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+      }
 
-    const { email, password } = req.body;
+      const {email, password} = req.body;
 
-    try {
       // See if user already exists
-      let user = await User.findOne({ email });
+      let user = await User.findOne({email});
       if (!user) {
         return res
           .status(400)
-          .json({ detail: { type: 'WARNING', msg: 'Invalid credentials' }});
+          .json({detail: {type: 'WARNING', msg: 'Invalid credentials'}});
       }
 
       // See if password is correct
@@ -53,16 +48,12 @@ router.post(
       if (!isMatch) {
         return res
           .status(400)
-          .json({ alert: { type: 'WARNING', msg: 'Invalid credentials' }}); // Same response for security reasons
+          .json({alert: {type: 'WARNING', msg: 'Invalid credentials'}}); // Same response for security reasons
       }
 
       // Generate token
       generateToken(user, res);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send({alert: { type: 'ERROR', msg: 'Server error', detail: err}});
     }
-  }
   ));
 
 // TODO: Function to generate the token. Called when login and create user.
@@ -78,12 +69,12 @@ function generateToken(user, res) {
   jwt.sign(
     payload,
     config.get('jwtSecret'),
-    { expiresIn: 3600 },
+    {expiresIn: 3600},
     (err, token) => {
       if (err) {
         throw err;
       }
-      res.json({ token });
+      res.json({token});
     }
   );
 }
