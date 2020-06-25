@@ -1,5 +1,5 @@
 import {identify} from '../external/acoustIdService';
-import {CustomError} from "../../utils/error";
+import {CustomError} from "../../utils/error/error";
 const Recording = require('../../models/Recording');
 
 export const identifyAudio = (buffer: Buffer, idUser: number): any => {

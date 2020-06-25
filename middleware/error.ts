@@ -1,4 +1,4 @@
-import * as error from '../utils/error';
+import * as error from '../utils/error/error';
 
 /***
  * express app has an error handler middleware that gets 4 parameters (err, req, res, next)
