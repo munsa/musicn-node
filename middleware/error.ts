@@ -1,4 +1,4 @@
-import * as error from '../utils/error/error';
+import * as error from '../utils/error/generalError';
 
 /***
  * express app has an error handler middleware that gets 4 parameters (err, req, res, next)
@@ -9,15 +9,10 @@ export const handleErrorAsync = func => async (req, res, next) => {
   try {
     await func(req, res, next);
   } catch (err) {
-    if (err instanceof error.GeneralError) {
-      return res.status(err.getCode()).json({
-        status: 'error',
-        message: err.message
-      });
-    }
-    return res.status(500).json({
+    console.log(err);
+    return res.status(err instanceof error.GeneralError ? err.getCode() : 500).json({
       status: 'error',
-      message: err.message
+      message: JSON.parse(err.message) // Parse back the message, stringify in GeneralError class
     });
   }
 };
