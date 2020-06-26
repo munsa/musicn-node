@@ -1,7 +1,7 @@
 import express = require('express');
 import {identifyAudio} from '../../services/recordingService';
 import multer from 'multer';
-import {handleErrorWrapper} from "../../middleware/error";
+import {errorHandlerWrapper} from "../../middleware/error";
 
 const auth = require('../../middleware/auth');
 
@@ -16,20 +16,17 @@ const router = express.Router();
 // @desc    Test route
 // @access  Public
 let cpUpload = upload.fields([{name: 'audio'}]);
-router.post('/', auth, cpUpload, handleErrorWrapper(async (req: any, res) => {
+router.post('/', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
   let buffer: Buffer = req.files.audio[0].buffer;
-
   let result = await identifyAudio(buffer, req.user.id);
 
-  if (result.recording) {
-    res.json(result);
-  } else {
-    res.status(500).send(result);
-  }
+  res.json(result);
 }));
 
-
-router.put('/addGeolocation/:idRecording', auth, handleErrorWrapper(async ({params: {idRecording}, body: {geolocation}}, res) => {
+// @route   POST api/recording/addGeolocation/:idRecording
+// @desc    Test route
+// @access  Public
+router.put('/addGeolocation/:idRecording', auth, errorHandlerWrapper(async ({params: {idRecording}, body: {geolocation}}, res) => {
   const recording = await Recording.findByIdAndUpdate(idRecording, {geolocation: geolocation});
   res.json(recording);
 }));

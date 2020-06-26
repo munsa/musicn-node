@@ -1,6 +1,6 @@
 import express from 'express';
 import connectDB from '../config/db';
-import {handleErrorAsync} from '../middleware/error'
+import {errorHandlerWrapper} from '../middleware/error'
 
 const app = express();
 
@@ -13,7 +13,6 @@ app.use(express.json());
 app.get('/', (req, res) => res.send('API Running'));
 
 // Define Routes
-app.use('/api/users', require('../routes/api/users'));
 app.use('/api/auth', require('../routes/api/auth'));
 app.use('/api/profile', require('../routes/api/profile'));
 app.use('/api/recording', require('../routes/api/recording'));

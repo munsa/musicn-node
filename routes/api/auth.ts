@@ -3,19 +3,18 @@ import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
 import gravatar = require('gravatar');
-
 const router = express.Router();
 const {check, validationResult} = require('express-validator');
 const User = require('../../models/User');
-import {handleErrorWrapper} from "../../middleware/error";
-import {BadRequestError} from "../../utils/error/badRequestError";
+import {errorHandlerWrapper} from "../../middleware/error";
+import {CustomError} from "../../utils/error/customError";
 
 const auth = require('../../middleware/auth');
 
 // @route   GET api/auth/user
 // @desc    Get authenticated user
 // @access  Public
-router.get('/user', auth, handleErrorWrapper(async (req: any, res) => {
+router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
   const user = await User.findById(req.user.id).select('-password');
   res.json(user);
 }));
@@ -26,13 +25,13 @@ router.get('/user', auth, handleErrorWrapper(async (req: any, res) => {
 router.post(
   '/login',
   [
-    check('email', BadRequestError.INVALID_EMAIL).isEmail(),
-    check('password', BadRequestError.REQUIRED_PASSWORD).exists()
+    check('email', CustomError.INVALID_EMAIL).isEmail(),
+    check('password', CustomError.REQUIRED_PASSWORD).exists()
   ],
-  handleErrorWrapper(async (req, res) => {
+  errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        throw new BadRequestError({errors: errors.array()});
+        throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
       }
 
       const {email, password} = req.body;
@@ -40,13 +39,14 @@ router.post(
       // See if user already exists
       let user = await User.findOne({email});
       if (!user) {
-        throw new BadRequestError(BadRequestError.INVALID_CREDENTIALS);
+        throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
       }
 
       // See if password is correct
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        throw new BadRequestError(BadRequestError.INVALID_CREDENTIALS); // Same response for security reasons
+        // Same response for security reasons
+        throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
       }
 
       // Generate token
@@ -69,10 +69,10 @@ router.post(
       'Please enter a password with 6 or more characters'
     ).isLength({min: 6})
   ],
-  handleErrorWrapper(async (req, res) => {
+  errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        throw new BadRequestError({errors: errors.array()});
+        throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
       }
 
       const {username, email, password} = req.body;
@@ -80,7 +80,7 @@ router.post(
       // See if user already exists
       let user = await User.findOne({email});
       if (user) {
-        throw new BadRequestError(BadRequestError.USER_ALREADY_EXISTS);
+        throw new CustomError(CustomError.USER_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
       }
 
       // Get gravatar
