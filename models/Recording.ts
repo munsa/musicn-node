@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const { RecordingSourceSchema } = require('./RecordingSource');
 
-const RecordingSchema = new mongoose.Schema({
+export const RecordingSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',

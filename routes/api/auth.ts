@@ -3,11 +3,13 @@ import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
 import gravatar = require('gravatar');
-const router = express.Router();
+import {errorHandlerWrapper} from '../../middleware/error';
+import {CustomError} from '../../utils/error/customError';
+
 const {check, validationResult} = require('express-validator');
 const User = require('../../models/User');
-import {errorHandlerWrapper} from "../../middleware/error";
-import {CustomError} from "../../utils/error/customError";
+const router = express.Router();
+
 
 const auth = require('../../middleware/auth');
 
@@ -58,7 +60,7 @@ router.post(
 // @desc    Register user
 // @access  Public
 router.post(
-  '/',
+  '/register',
   [
     check('username', 'Username is required')
       .not()
