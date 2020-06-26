@@ -5,7 +5,7 @@ import * as error from '../utils/error/generalError';
  * express router middleware does not accept 4 parameters
  * this function is a wrapper used on each function that wants to handle errors
  */
-export const handleErrorAsync = func => async (req, res, next) => {
+export const handleErrorWrapper = func => async (req, res, next) => {
   try {
     await func(req, res, next);
   } catch (err) {

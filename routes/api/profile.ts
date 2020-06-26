@@ -4,20 +4,25 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const Recording = require('../../models/Recording');
 const User = require('../../models/User');
-import {handleErrorAsync} from '../../middleware/error';
+import {handleErrorWrapper} from '../../middleware/error';
+import {BadRequestError} from "../../utils/error/badRequestError";
 
 // @route   GET api/profile/:username
 // @desc    Get profile by username
 // @access  Public
-router.get('/:username', auth, handleErrorAsync(async ({params: {username}}, res) => {
+router.get('/:username', auth, handleErrorWrapper(async ({params: {username}}, res) => {
   const user = await User.findOne({username: username});
-  const recordings = user ? await Recording.find({user: user._id}).limit(10).sort('-date') : '';
+  if(user) {
+    const recordings = user ? await Recording.find({user: user._id}).limit(10).sort('-date') : '';
 
-  const profile = {
-    user: user,
-    recordings: recordings
+    const profile = {
+      user: user,
+      recordings: recordings
+    }
+    res.json(profile);
+  } else {
+    throw new BadRequestError(BadRequestError.USER_DOESNT_EXIST)
   }
-  res.json(profile);
 }));
 
 module.exports = router;
