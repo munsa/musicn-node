@@ -1,13 +1,9 @@
-import express = require('express');
-import bcrypt = require('bcryptjs');
-import jwt = require('jsonwebtoken');
-import config = require('config');
-import gravatar = require('gravatar');
+import express from 'express';
 import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
+import {AuthService} from '../../services/authService';
 
 const {check, validationResult} = require('express-validator');
-const User = require('../../models/User');
 const router = express.Router();
 
 
@@ -19,7 +15,7 @@ const auth = require('../../middleware/auth');
  * @access  Public
  */
 router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
-  const user = await User.findById(req.user.id).select('-password');
+  const user = await AuthService.getUserById(req.user.id);
   res.json(user);
 }));
 
@@ -39,24 +35,18 @@ router.post(
       if (!errors.isEmpty()) {
         throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
       }
-
       const {email, password} = req.body;
 
-      // See if user already exists
-      let user = await User.findOne({email});
-      if (!user) {
-        throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
-      }
+      const idUser = await AuthService.login(email, password);
 
-      // See if password is correct
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        // Same response for security reasons
-        throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
+      if (idUser) {
+        AuthService.generateToken(idUser, (err, token) => {
+          if (err) {
+            throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
+          }
+          res.json({token});
+        })
       }
-
-      // Generate token
-      generateToken(user, res);
     }
   ));
 
@@ -82,62 +72,19 @@ router.post(
       if (!errors.isEmpty()) {
         throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
       }
-
       const {username, email, password} = req.body;
 
-      // See if user already exists
-      let user = await User.findOne({email});
-      if (user) {
-        throw new CustomError(CustomError.USER_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
+      const idUser = await AuthService.register(username, email, password);
+      if (idUser) {
+        AuthService.generateToken(idUser, (err, token) => {
+          if (err) {
+            throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
+          }
+          res.json({token});
+        })
       }
-
-      // Get gravatar
-      const avatar = gravatar.url(email, {
-        s: '200',
-        r: 'pg',
-        d: 'mm'
-      });
-
-      // Create User object
-      user = new User({
-        username,
-        email,
-        avatar,
-        password
-      });
-
-      // Encrypt password
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-
-      // Save user in the db
-      await user.save();
-
-      // Generate token
-      generateToken(user, res);
     }
   ));
 
-function generateToken(user, res) {
-  // Create payload
-  const payload = {
-    user: {
-      id: user.id
-    }
-  };
-
-  // Sign the token
-  jwt.sign(
-    payload,
-    config.get('jwtSecret'),
-    {expiresIn: 3600},
-    (err, token) => {
-      if (err) {
-        throw err;
-      }
-      res.json({token});
-    }
-  );
-}
 
 module.exports = router;
