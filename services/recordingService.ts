@@ -17,31 +17,36 @@ export module RecordingService {
    * @return  Recording
    */
   export const identifyAudio = async (buffer: Buffer, idUser: number) => {
-    AcoustIdService.identify(buffer, async function (err, httpResponse, body) {
+    return new Promise((resolve, reject) => {
+      AcoustIdService.identify(buffer, async function (err, httpResponse, body) {
 
-      let recordingResult;
-      if (!err) {
-        const result = JSON.parse(body);
-        console.log(result);
+        let recordingResult;
+        if (!err) {
+          const result = JSON.parse(body);
+          console.log(result);
 
-        switch (result.status.code) {
-          case 0:
-            recordingResult = createRecordingObject(idUser, result.metadata.music[0]);
-            await recordingResult.save();
-            break;
-          case 1001:
-            recordingResult = null;
-            break;
-          case 2004:
-            throw new CustomError(CustomError.CANT_GENERATE_FINGERPRINT);
-          default:
-            throw new CustomError(CustomError.UNKNOWN_ACOUSTID_API_ERROR);
+          switch (result.status.code) {
+            case 0:
+              recordingResult = createRecordingObject(idUser, result.metadata.music[0]);
+              await recordingResult.save();
+              break;
+            case 1001:
+              recordingResult = null;
+              break;
+            case 2004:
+              reject();
+              throw new CustomError(CustomError.CANT_GENERATE_FINGERPRINT);
+            default:
+              reject();
+              throw new CustomError(CustomError.UNKNOWN_ACOUSTID_API_ERROR);
+          }
+        } else {
+          reject();
+          throw new CustomError(CustomError.UNKNOWN_ACOUSTID_API_ERROR);
         }
-      } else {
-        throw new CustomError(CustomError.UNKNOWN_ACOUSTID_API_ERROR);
-      }
 
-      return recordingResult;
+        resolve(recordingResult);
+      })
     });
   }
 

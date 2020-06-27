@@ -13,7 +13,7 @@ export class CustomError extends Error {
     if(code) {
       this.code = code;
     }
-    this.name = 'GeneralError';
+    this.name = 'CustomError';
 
     Object.setPrototypeOf(this, new.target.prototype);
   }

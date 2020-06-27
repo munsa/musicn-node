@@ -9,12 +9,12 @@ let upload = multer({storage: storage});
 const router = express.Router();
 
 /**
- * @route   POST api/recording
+ * @route   POST api/recording/identify
  * @desc    Gets an audio, identifies it and saves it if success
  * @access  Public
  */
 let cpUpload = upload.fields([{name: 'audio'}]);
-router.post('/', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
+router.post('/identify', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
   const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id);
   res.json(result);
 }));
