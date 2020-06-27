@@ -13,17 +13,21 @@ const router = express.Router();
 
 const auth = require('../../middleware/auth');
 
-// @route   GET api/auth/user
-// @desc    Get authenticated user
-// @access  Public
+/**
+ * @route   GET api/auth/user
+ * @desc    Get authenticated user
+ * @access  Public
+ */
 router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
   const user = await User.findById(req.user.id).select('-password');
   res.json(user);
 }));
 
-// @route   POST api/auth/login
-// @desc    Authenticate user & get token
-// @access  Public
+/**
+ * @route   POST api/auth/login
+ * @desc    Authenticate user & get token
+ * @access  Public
+ */
 router.post(
   '/login',
   [
@@ -56,9 +60,11 @@ router.post(
     }
   ));
 
-// @route   POST api/auth/register
-// @desc    Register user
-// @access  Public
+/**
+ * @route   POST api/auth/register
+ * @desc    Register user
+ * @access  Public
+ */
 router.post(
   '/register',
   [

@@ -15,9 +15,7 @@ const router = express.Router();
  */
 let cpUpload = upload.fields([{name: 'audio'}]);
 router.post('/', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
-  let buffer: Buffer = req.files.audio[0].buffer;
-  const result = await RecordingService.identifyAudio(buffer, req.user.id);
-
+  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id);
   res.json(result);
 }));
 
@@ -28,8 +26,8 @@ router.post('/', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
  */
 router.put('/addGeolocation/:idRecording', auth, errorHandlerWrapper(async ({params: {idRecording}, body: {geolocation}}, res) => {
 
-  res.json(RecordingService.addGeolocationToRecording(idRecording, geolocation));
-
+  const result = RecordingService.addGeolocationToRecording(idRecording, geolocation);
+  res.json(result);
 }));
 
 module.exports = router;
