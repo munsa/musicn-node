@@ -8,7 +8,7 @@ import {CustomError} from '../utils/error/customError';
 
 const User = require('../models/User');
 
-export module AuthService {
+export module UserService {
   /**
    * @name    getUserById
    * @param   idUser
@@ -16,6 +16,15 @@ export module AuthService {
    */
   export const getUserById = async (idUser: number) => {
     return await User.findById(idUser).select('-password');
+  }
+
+  /**
+   * @name    getUserByUsername
+   * @param   username
+   * @return  User
+   */
+  export const getUserByUsername = async (username: string) => {
+    return await User.findOne({username: username}).select('-password');
   }
 
   /**
@@ -41,6 +50,13 @@ export module AuthService {
     }
   }
 
+  /**
+   * @name    register
+   * @param   username
+   * @param   email
+   * @param   password
+   * @return  idUser
+   */
   export const register = async (username: string, email: string, password: string) => {
     // See if user already exists
     let user = await User.findOne({email});
@@ -73,6 +89,12 @@ export module AuthService {
     return user.id;
   }
 
+  /**
+   * @name    generateToken
+   * @param   idUser
+   * @param   tokenCallback
+   * @return  void
+   */
   export const generateToken = (idUser: number, tokenCallback: (err, token) => void): void => {
     // Create payload
     const payload = {

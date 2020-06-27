@@ -1,17 +1,23 @@
-import {identify} from './acoustIdService';
-import {CustomError} from "../utils/error/customError";
-import {promisify} from "util";
+import {CustomError} from '../utils/error/customError';
+import {promisify} from 'util';
 import {v4} from 'uuid';
+import {RecordingSchema} from '../models/Recording';
+import {AcoustIdService} from './acoustIdService';
 import fs = require('fs');
 import path = require('path');
-import {RecordingSchema} from '../models/Recording';
 
 const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
 
 export module RecordingService {
-  export const identifyAudio = (buffer: Buffer, idUser: number): any => {
-    identify(buffer, async function (err, httpResponse, body) {
+  /**
+   * @name    identifyAudio
+   * @param   buffer
+   * @param   idUser
+   * @return  Recording
+   */
+  export const identifyAudio = async (buffer: Buffer, idUser: number) => {
+    AcoustIdService.identify(buffer, async function (err, httpResponse, body) {
 
       let recordingResult;
       if (!err) {
@@ -20,7 +26,7 @@ export module RecordingService {
 
         switch (result.status.code) {
           case 0:
-            recordingResult = await createRecordingObject(result.metadata.music[0], idUser);
+            recordingResult = createRecordingObject(idUser, result.metadata.music[0]);
             await recordingResult.save();
             break;
           case 1001:
@@ -39,7 +45,13 @@ export module RecordingService {
     });
   }
 
-  const createRecordingObject = (idUser: number, music) => {
+  /**
+   * @name    createRecordingObject
+   * @param   idUser
+   * @param   music
+   * @return  Recording
+   */
+  const createRecordingObject = (idUser: number, music: any) => {
     return new Recording({
       user: idUser,
       acrid: music.acrid,
@@ -65,22 +77,39 @@ export module RecordingService {
     });
   }
 
-  export const addGeolocationToRecording = async (idRecording, geolocation) => {
+  /**
+   * @name    addGeolocationToRecording
+   * @param   idRecording
+   * @param   geolocation
+   * @return  Recording
+   */
+  export const addGeolocationToRecording = async (idRecording: number, geolocation: object) => {
     return await RecordingSchema.findByIdAndUpdate(idRecording, {geolocation: geolocation});
   }
 
-  /***
-   * Writes a .wav file from the buffer
-   * Useful for developing purposes
+  /**
+   * @name    writeWavFile
+   * @desc    Writes a .wav file from the buffer, useful for developing purposes
+   * @param   buffer
+   * @return  void
    */
-  function writeWavFile(buffer: Buffer) {
+  export const writeWavFile = (buffer: Buffer): void => {
     const messageId = v4();
     writeFile('./temp/' + messageId + '.wav', new Buffer(buffer), 'base64').then(() => {
       let filename = './../../temp/' + messageId + '.wav';
       let bitmap: Buffer = fs.readFileSync(path.resolve(__dirname, filename));
-      //identify(bitmap);
+      //identifyAudio(bitmap);
     }).catch(err => {
       console.log('Error writing message to file', err);
     });
+  }
+
+  /**
+   * @name    getUserRecordings
+   * @param   idUser
+   * @return  Recording[]
+   */
+  export const getUserRecordings = async (idUser: number) => {
+    return await Recording.find({user: idUser}).limit(10).sort('-date');
   }
 }

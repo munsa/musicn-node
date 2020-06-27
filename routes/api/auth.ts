@@ -1,7 +1,7 @@
 import express from 'express';
 import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
-import {AuthService} from '../../services/authService';
+import {UserService} from '../../services/userService';
 
 const {check, validationResult} = require('express-validator');
 const router = express.Router();
@@ -15,7 +15,7 @@ const auth = require('../../middleware/auth');
  * @access  Public
  */
 router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
-  const user = await AuthService.getUserById(req.user.id);
+  const user = await UserService.getUserById(req.user.id);
   res.json(user);
 }));
 
@@ -37,10 +37,10 @@ router.post(
       }
       const {email, password} = req.body;
 
-      const idUser = await AuthService.login(email, password);
+      const idUser = await UserService.login(email, password);
 
       if (idUser) {
-        AuthService.generateToken(idUser, (err, token) => {
+        UserService.generateToken(idUser, (err, token) => {
           if (err) {
             throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
           }
@@ -74,9 +74,9 @@ router.post(
       }
       const {username, email, password} = req.body;
 
-      const idUser = await AuthService.register(username, email, password);
+      const idUser = await UserService.register(username, email, password);
       if (idUser) {
-        AuthService.generateToken(idUser, (err, token) => {
+        UserService.generateToken(idUser, (err, token) => {
           if (err) {
             throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
           }

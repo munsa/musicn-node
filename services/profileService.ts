@@ -1,20 +1,22 @@
 import {CustomError} from '../utils/error/customError';
-
-const Recording = require('../models/Recording');
-const User = require('../models/User');
+import {RecordingService} from './recordingService';
+import {UserService} from './userService';
 
 export module ProfileService {
+  /**
+   * @name    getProfileByUsername
+   * @param   username
+   * @return  profile
+   */
   export const getProfileByUsername = async (username: string) => {
-    const user = await User.findOne({username: username});
+    const user = await UserService.getUserByUsername(username);
     if (user) {
-      const recordings = user ? await Recording.find({user: user.id}).limit(10).sort('-date') : '';
+      const recordings = await RecordingService.getUserRecordings(user.id);
 
-      const profile = {
+      return {
         user: user,
         recordings: recordings
       }
-
-      return profile;
     } else {
       throw new CustomError(CustomError.USER_DOESNT_EXIST)
     }

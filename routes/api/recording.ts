@@ -25,7 +25,6 @@ router.post('/', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
  * @access  Public
  */
 router.put('/addGeolocation/:idRecording', auth, errorHandlerWrapper(async ({params: {idRecording}, body: {geolocation}}, res) => {
-
   const result = RecordingService.addGeolocationToRecording(idRecording, geolocation);
   res.json(result);
 }));

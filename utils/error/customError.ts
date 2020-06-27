@@ -46,4 +46,5 @@ export class CustomError extends Error {
   static readonly REQUIRED_PASSWORD = 'Password is required';
   static readonly USER_ALREADY_EXISTS = 'User already exists';
   static readonly USER_DOESNT_EXIST = 'User doesn\'t exist';
+  static readonly ERROR_SIGNING_TOKEN = 'An error occurred when signing the token';
 }
