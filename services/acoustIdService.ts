@@ -1,5 +1,7 @@
+import axios from 'axios';
 import crypto = require('crypto');
 import request = require('request');
+import {CustomError} from '../utils/error/customError';
 
 export module AcoustIdService {
   const buildStringToSign = (method, uri, accessKey, dataType, signatureVersion, timestamp) => {
@@ -15,7 +17,7 @@ export module AcoustIdService {
   /**
    * Identifies a sample of bytes
    */
-  export const identify = (data, cb) => {
+  export const identify = async (data, cb) => {
     let options = {
       host: 'identify-eu-west-1.acrcloud.com',
       endpoint: '/v1/identify',
@@ -47,8 +49,10 @@ export module AcoustIdService {
       sample_bytes: data.length,
       timestamp: timestamp,
     };
+
+    const url = "http://" + options.host + options.endpoint;
     request.post({
-      url: "http://" + options.host + options.endpoint,
+      url: url,
       method: 'POST',
       formData: formData
     }, cb);

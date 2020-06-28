@@ -10,7 +10,7 @@ export const errorHandlerWrapper = func => async (req, res, next) => {
     await func(req, res, next);
   } catch (err) {
     console.log(err);
-    return res.status(err.code ? err.code : 500).json({
+    res.status(err.code ? err.code : 500).json({
       status: 'error',
       message: JSON.parse(err.message) // Parse back the message, stringify in GeneralError class
     });

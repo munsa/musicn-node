@@ -19,7 +19,6 @@ export module RecordingService {
   export const identifyAudio = async (buffer: Buffer, idUser: number) => {
     return new Promise((resolve, reject) => {
       AcoustIdService.identify(buffer, async function (err, httpResponse, body) {
-
         let recordingResult;
         if (!err) {
           const result = JSON.parse(body);
