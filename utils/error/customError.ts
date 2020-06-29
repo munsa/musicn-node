@@ -37,7 +37,7 @@ export class CustomError extends Error {
   // Error Messages
   static readonly INTERNAL_SERVER_ERROR = 'Server error';
   static readonly CANT_GENERATE_FINGERPRINT = 'Can\'t generate fingerprint';
-  static readonly UNKNOWN_ACOUSTID_API_ERROR = 'Unknown AcoustID error';
+  static readonly UNKNOWN_ACRCLOUD_API_ERROR = 'Unknown ACRCloud error';
   static readonly USER_NOT_FOUND = 'User not found';
   static readonly NOT_FOUND = 'Not found';
   static readonly BAD_REQUEST = 'Bad request';

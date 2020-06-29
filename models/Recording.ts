@@ -15,7 +15,7 @@ export const RecordingSchema = new mongoose.Schema({
   acrid: String,
   genres: [String],
   releaseDate: Date,
-  acoustId: RecordingSourceSchema,
+  acrId: RecordingSourceSchema,
   spotify: RecordingSourceSchema,
   deezer: RecordingSourceSchema,
   geolocation: {

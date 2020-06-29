@@ -2,7 +2,7 @@ import {CustomError} from '../utils/error/customError';
 import {promisify} from 'util';
 import {v4} from 'uuid';
 import {RecordingSchema} from '../models/Recording';
-import {AcoustIdService} from './acoustIdService';
+import {ACRCloudService} from './acrCloudService';
 import fs = require('fs');
 import path = require('path');
 
@@ -17,36 +17,22 @@ export module RecordingService {
    * @return  Recording
    */
   export const identifyAudio = async (buffer: Buffer, idUser: number) => {
-    return new Promise((resolve, reject) => {
-      AcoustIdService.identify(buffer, async function (err, httpResponse, body) {
-        let recordingResult;
-        if (!err) {
-          const result = JSON.parse(body);
-          console.log(result);
+    const acrCloudResult = await ACRCloudService.identify(buffer);
+    const result = JSON.parse(acrCloudResult.body);
+    console.log(result);
 
-          switch (result.status.code) {
-            case 0:
-              recordingResult = createRecordingObject(idUser, result.metadata.music[0]);
-              await recordingResult.save();
-              break;
-            case 1001:
-              recordingResult = null;
-              break;
-            case 2004:
-              reject();
-              throw new CustomError(CustomError.CANT_GENERATE_FINGERPRINT);
-            default:
-              reject();
-              throw new CustomError(CustomError.UNKNOWN_ACOUSTID_API_ERROR);
-          }
-        } else {
-          reject();
-          throw new CustomError(CustomError.UNKNOWN_ACOUSTID_API_ERROR);
-        }
-
-        resolve(recordingResult);
-      })
-    });
+    switch (result.status.code) {
+      case 0:
+        let recordingObject = createRecordingObject(idUser, result.metadata.music[0]);
+        await recordingObject.save();
+        return recordingObject
+      case 1001:
+        return null;
+      case 2004:
+        throw new CustomError(CustomError.CANT_GENERATE_FINGERPRINT);
+      default:
+        throw new CustomError(CustomError.UNKNOWN_ACRCLOUD_API_ERROR);
+    }
   }
 
   /**
@@ -63,7 +49,7 @@ export module RecordingService {
         return g['name']
       }),
       releaseDate: Date.parse(music.release_date),
-      acoustId: {
+      acrId: {
         artists: music.artists,
         track: {name: music.title},
         album: music.album
