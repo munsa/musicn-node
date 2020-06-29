@@ -1,90 +1,90 @@
-import express = require('express');
+import express from 'express';
+import {errorHandlerWrapper} from '../../middleware/error';
+import {CustomError} from '../../utils/error/customError';
+import {UserService} from '../../services/userService';
+
+const {check, validationResult} = require('express-validator');
 const router = express.Router();
-const { check, validationResult } = require('express-validator');
-const User = require('../../models/User');
-import bcrypt = require('bcryptjs');
-import jwt = require('jsonwebtoken');
-import config = require('config');
-import gravatar = require('gravatar');
+
+
 const auth = require('../../middleware/auth');
 
-// @route   GET api/auth
-// @desc    Get authenticated user
-// @access  Public
-router.get('/', auth, async (req: any, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
+/**
+ * @route   GET api/auth/user
+ * @desc    Get authenticated user
+ * @access  Public
+ */
+router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
+  const user = await UserService.getUserById(req.user.id);
+  res.json(user);
+}));
 
-// @route   POST api/auth
-// @desc    Authenticate user & get token
-// @access  Public
+/**
+ * @route   POST api/auth/login
+ * @desc    Authenticate user & get token
+ * @access  Public
+ */
 router.post(
-  '/',
+  '/login',
   [
-    check('email', 'Please include a valid email').isEmail(),
-    check('password', 'Password is required').exists()
+    check('email', CustomError.INVALID_EMAIL).isEmail(),
+    check('password', CustomError.REQUIRED_PASSWORD).exists()
   ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { email, password } = req.body;
-
-    try {
-      // See if user already exists
-      let user = await User.findOne({ email });
-      if (!user) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] });
+  errorHandlerWrapper(async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
       }
+      const {email, password} = req.body;
 
-      // See if password is correct
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] }); // Same response for security reasons
+      const idUser = await UserService.login(email, password);
+
+      if (idUser) {
+        UserService.generateToken(idUser, (err, token) => {
+          if (err) {
+            throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
+          }
+          res.json({token});
+        })
       }
-
-      // Generate token
-      generateToken(user, res);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
     }
-  }
-);
+  ));
 
-// TODO: Function to generate the token. Called when login and create user.
-function generateToken(user, res) {
-  // Create payload
-  const payload = {
-    user: {
-      id: user.id
-    }
-  };
-
-  // Sign the token
-  jwt.sign(
-    payload,
-    config.get('jwtSecret'),
-    { expiresIn: 3600 },
-    (err, token) => {
-      if (err) {
-        throw err;
+/**
+ * @route   POST api/auth/register
+ * @desc    Register user
+ * @access  Public
+ */
+router.post(
+  '/register',
+  [
+    check('username', 'Username is required')
+      .not()
+      .isEmpty(),
+    check('email', 'Please include a valid email').isEmail(),
+    check(
+      'password',
+      'Please enter a password with 6 or more characters'
+    ).isLength({min: 6})
+  ],
+  errorHandlerWrapper(async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
       }
-      res.json({ token });
+      const {username, email, password} = req.body;
+
+      const idUser = await UserService.register(username, email, password);
+      if (idUser) {
+        UserService.generateToken(idUser, (err, token) => {
+          if (err) {
+            throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
+          }
+          res.json({token});
+        })
+      }
     }
-  );
-}
+  ));
+
 
 module.exports = router;

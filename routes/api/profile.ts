@@ -1,28 +1,18 @@
 import express = require('express');
+import {errorHandlerWrapper} from '../../middleware/error';
+import {ProfileService} from '../../services/profileService';
 
 const router = express.Router();
 const auth = require('../../middleware/auth');
-const Recording = require('../../models/Recording');
-const User = require('../../models/User');
-const {check, validationResult} = require('express-validator');
 
-// @route   GET api/profile/:username
-// @desc    Get profile by username
-// @access  Public
-router.get('/:username', auth, async ({params: {username}}, res) => {
-  try {
-    const user = await User.findOne({username: username});
-    const recordings = await Recording.find({user: user._id}).limit( 10 ).sort( '-date' );
-
-    const profile = {
-        user: user,
-        recordings: recordings
-      }
-    res.json(profile);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+/**
+ * @route   GET api/profile/:username
+ * @desc    Get profile by username
+ * @access  Public
+ */
+router.get('/:username', auth, errorHandlerWrapper(async ({params: {username}}, res) => {
+  const result = await ProfileService.getProfileByUsername(username);
+  res.json(result);
+}));
 
 module.exports = router;
