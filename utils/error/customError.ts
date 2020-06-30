@@ -6,9 +6,8 @@ export class CustomError extends Error {
   code: number = CustomError.STATUS_CODE_INTERNAL_SERVER_ERROR;
   constructor(message, code?) {
     super();
-    // The message can be an object, stringify to show a complete message in the console trace
     if(message) {
-      this.message = JSON.stringify(message);
+      this.message = message;
     }
     if(code) {
       this.code = code;
