@@ -15,12 +15,12 @@ export const RecordingSchema = new mongoose.Schema({
   acrid: String,
   genres: [String],
   releaseDate: Date,
-  acrId: RecordingSourceSchema,
+  acrCloud: RecordingSourceSchema,
   spotify: RecordingSourceSchema,
   deezer: RecordingSourceSchema,
   geolocation: {
-    latitude: String,
-    longitude: String
+    latitude: Number,
+    longitude: Number
   }
 });
 
