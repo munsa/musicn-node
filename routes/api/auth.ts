@@ -1,7 +1,7 @@
 import express from 'express';
 import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
-import {UserService} from '../../services/userService';
+import UserService from '../../services/userService';
 
 const {check, validationResult} = require('express-validator');
 const router = express.Router();
@@ -33,7 +33,7 @@ router.post(
   errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
+        throw new CustomError(errors.array(), CustomError.STATUS_CODE_BAD_REQUEST);
       }
       const {email, password} = req.body;
 
@@ -70,7 +70,7 @@ router.post(
   errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        throw new CustomError({errors: errors.array()}, CustomError.STATUS_CODE_BAD_REQUEST);
+        throw new CustomError(errors.array(), CustomError.STATUS_CODE_BAD_REQUEST);
       }
       const {username, email, password} = req.body;
 

@@ -49,7 +49,7 @@ export module RecordingService {
         return g['name']
       }),
       releaseDate: Date.parse(music.release_date),
-      acrId: {
+      acrCloud: {
         artists: music.artists,
         track: {name: music.title},
         album: music.album
@@ -74,7 +74,7 @@ export module RecordingService {
    * @return  Recording
    */
   export const addGeolocationToRecording = async (idRecording: number, geolocation: object) => {
-    return await RecordingSchema.findByIdAndUpdate(idRecording, {geolocation: geolocation});
+    return await Recording.findByIdAndUpdate(idRecording, {geolocation: geolocation});
   }
 
   /**
@@ -100,6 +100,14 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getUserRecordings = async (idUser: number) => {
-    return await Recording.find({user: idUser}).limit(10).sort('-date');
+    return await Recording.find({user: idUser}).sort('-date');
+  }
+
+  /**
+   * @name    getAllRecordings
+   * @return  Recording[]
+   */
+  export const getAllRecordings = async () => {
+    return await Recording.find().populate('user', 'avatar');
   }
 }
