@@ -1,7 +1,7 @@
 import express from 'express';
 import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
-import {UserService} from '../../services/userService';
+import UserService from '../../services/userService';
 
 const {check, validationResult} = require('express-validator');
 const router = express.Router();

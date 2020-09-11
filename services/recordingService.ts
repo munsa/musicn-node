@@ -100,7 +100,7 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getUserRecordings = async (idUser: number) => {
-    return await Recording.find({user: idUser}).limit(10).sort('-date');
+    return await Recording.find({user: idUser}).sort('-date');
   }
 
   /**
@@ -108,6 +108,6 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getAllRecordings = async () => {
-    return await Recording.find();
+    return await Recording.find().populate('user', 'avatar');
   }
 }

@@ -1,9 +1,6 @@
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import config = require('config');
-
-
-import gravatar = require('gravatar');
 import {CustomError} from '../utils/error/customError';
 
 const User = require('../models/User');
@@ -64,12 +61,15 @@ export module UserService {
       throw new CustomError(CustomError.USER_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
     }
 
-    // Get gravatar
-    const avatar = gravatar.url(email, {
+    // Get Adorable Avatar
+    const avatar = 'https://api.adorable.io/avatars/285/' + email + '.png';
+
+    // Get Gravatar
+    /*const avatar = gravatar.url(email, {
       s: '200',
       r: 'pg',
       d: 'mm'
-    });
+    });*/
 
     // Create User object
     user = new User({
@@ -111,6 +111,6 @@ export module UserService {
       tokenCallback
     );
   }
-
-
 }
+
+export default UserService
