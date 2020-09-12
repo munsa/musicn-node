@@ -30,15 +30,14 @@ export module SpotifyService {
   }
   getCredentials();
 
-  // Get Elvis' albums
-  export const getElvis = (): void => {
-    spotifyApi.getTrack('4i8ObH2xPP4DSNniUJlgar').then(
-      function (data) {
-        console.log('Artist albums', data.body);
-      },
-      function (err) {
-        console.error(err);
-      }
-    );
+  export const getTrack = async (trackId: string) => {
+    const result = await spotifyApi.getTrack(trackId);
+    console.log(result);
+    return result;
   }
+
+  export const getTracks = async (trackIds: string[]) => {
+    return await spotifyApi.getTracks(trackIds);
+  }
+
 }
