@@ -39,4 +39,14 @@ router.get('/all', auth, errorHandlerWrapper(async (req, res) => {
   res.json(result);
 }));
 
+/**
+ * @route   POST api/recording/:idUser
+ * @desc    Gets recordings from user
+ * @access  Public
+ */
+router.get('/:idUser', auth, errorHandlerWrapper(async ({params: {idUser}}, res) => {
+  const result = await RecordingService.getUserRecordings(idUser);
+  res.json(result);
+}));
+
 module.exports = router;

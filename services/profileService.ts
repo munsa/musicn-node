@@ -11,12 +11,8 @@ export module ProfileService {
   export const getProfileByUsername = async (username: string) => {
     const user = await UserService.getUserByUsername(username);
     if (user) {
-      const recordings = await RecordingService.getUserRecordings(user.id);
 
-      return {
-        user: user,
-        recordings: recordings
-      }
+      return user;
     } else {
       throw new CustomError(CustomError.USER_DOESNT_EXIST)
     }
