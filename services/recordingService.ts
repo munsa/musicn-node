@@ -100,17 +100,24 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getUserRecordings = async (idUser: number) => {
-    const userRecordings = await Recording.find({user: idUser}).limit(10).sort('-date');
+    const userRecordings = await Recording.find({user: idUser}).limit(20).sort('-date');
+    const userRecordingsObject = userRecordings.map(r => r.toObject());
 
-    if(userRecordings.length > 0) {
-      for (const r of userRecordings) {
-        if (r.spotify?.track?.id) {
-          r.spotify._doc.api = (await SpotifyService.getTrack(r.spotify.track.id)).body;
-        }
-      }
+    // Get spotify information
+    if(userRecordingsObject.length > 0) {
+      let trackIds = userRecordingsObject.filter( r => {return r.spotify?.track?.id}).map( r => r.spotify.track.id);
+      let trackList = (await SpotifyService.getTracks(trackIds)).body;
+      trackList.tracks.forEach( a => {
+        userRecordingsObject.filter( r => {return r.spotify?.track?.id}).forEach( b => {
+          if (a.id === b.spotify.track.id) {
+            b.spotify.api = a;
+          }
+        });
+      });
     }
 
-    return userRecordings;
+
+    return userRecordingsObject;
   }
 
   /**

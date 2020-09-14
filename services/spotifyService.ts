@@ -31,9 +31,7 @@ export module SpotifyService {
   getCredentials();
 
   export const getTrack = async (trackId: string) => {
-    const result = await spotifyApi.getTrack(trackId);
-    console.log(result);
-    return result;
+    return await spotifyApi.getTrack(trackId);
   }
 
   export const getTracks = async (trackIds: string[]) => {
