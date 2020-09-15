@@ -121,6 +121,16 @@ export module RecordingService {
   }
 
   /**
+   *
+   * @param idUser
+   * @param count
+   * @param last
+   */
+  export const getMoreUserRecordings = async (idUser: number, count: number, last: number) => {
+    return await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
+  }
+
+  /**
    * @name    getAllRecordings
    * @return  Recording[]
    */
