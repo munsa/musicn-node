@@ -1,10 +1,10 @@
 import {CustomError} from '../utils/error/customError';
 import {promisify} from 'util';
 import {v4} from 'uuid';
-import {RecordingSchema} from '../models/Recording';
 import {ACRCloudService} from './acrCloudService';
 import fs = require('fs');
 import path = require('path');
+import {SpotifyService} from './spotifyService';
 
 const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
@@ -100,7 +100,24 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getUserRecordings = async (idUser: number) => {
-    return await Recording.find({user: idUser}).sort('-date');
+    const userRecordings = await Recording.find({user: idUser}).limit(20).sort('-date');
+    const userRecordingsObject = userRecordings.map(r => r.toObject());
+
+    // Get spotify information
+    if(userRecordingsObject.length > 0) {
+      let trackIds = userRecordingsObject.filter( r => {return r.spotify?.track?.id}).map( r => r.spotify.track.id);
+      let trackList = (await SpotifyService.getTracks(trackIds)).body;
+      trackList.tracks.forEach( a => {
+        userRecordingsObject.filter( r => {return r.spotify?.track?.id}).forEach( b => {
+          if (a.id === b.spotify.track.id) {
+            b.spotify.api = a;
+          }
+        });
+      });
+    }
+
+
+    return userRecordingsObject;
   }
 
   /**

@@ -2,3 +2,4 @@ node_modules/
 build/
 .idea/
 config/default.json
+config/external_apis/
