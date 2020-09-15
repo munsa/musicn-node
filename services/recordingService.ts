@@ -10,7 +10,6 @@ const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
 
 export module RecordingService {
-  import getSpotifyInformation = SpotifyService.getSpotifyInformation;
   /**
    * @name    identifyAudio
    * @param   buffer
@@ -26,7 +25,10 @@ export module RecordingService {
       case 0:
         let recordingObject = createRecordingObject(idUser, result.metadata.music[0]);
         await recordingObject.save();
-        return recordingObject
+
+        const fullRecording = await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
+
+        return fullRecording;
       case 1001:
         return null;
       case 2004:
@@ -104,22 +106,23 @@ export module RecordingService {
     const userRecordings = await Recording.find({user: idUser}).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
-    await getSpotifyInformation(userRecordingsObject);
+    await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
 
     return userRecordingsObject;
   }
 
   /**
-   *
-   * @param idUser
-   * @param count
-   * @param last
+   * @name    getMoreUserRecordings
+   * @param   idUser
+   * @param   count
+   * @param   last
+   * @return  Recording[]
    */
   export const getMoreUserRecordings = async (idUser: number, count: number, last: number) => {
     const userRecordings = await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
-    await getSpotifyInformation(userRecordingsObject);
+    await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
 
     return userRecordingsObject;
   }
