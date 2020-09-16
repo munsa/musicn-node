@@ -100,10 +100,11 @@ export module RecordingService {
   /**
    * @name    getUserRecordings
    * @param   idUser
+   * @param   count
    * @return  Recording[]
    */
-  export const getUserRecordings = async (idUser: number) => {
-    const userRecordings = await Recording.find({user: idUser}).limit(20).sort('-date');
+  export const getUserRecordings = async (idUser: number, count: number) => {
+    const userRecordings = await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
     await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
@@ -112,19 +113,12 @@ export module RecordingService {
   }
 
   /**
-   * @name    getMoreUserRecordings
+   * @name    getUserRecordingsCount
    * @param   idUser
-   * @param   count
-   * @param   last
-   * @return  Recording[]
+   * @return  number
    */
-  export const getMoreUserRecordings = async (idUser: number, count: number, last: number) => {
-    const userRecordings = await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
-    const userRecordingsObject = userRecordings.map(r => r.toObject());
-
-    await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
-
-    return userRecordingsObject;
+  export const getUserRecordingsCount = async (idUser: number) => {
+    return await Recording.count({user: idUser});
   }
 
   /**

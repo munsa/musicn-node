@@ -44,18 +44,13 @@ router.get('/all', auth, errorHandlerWrapper(async (req, res) => {
  * @desc    Gets recordings from user
  * @access  Public
  */
-router.get('/:idUser', auth, errorHandlerWrapper(async ({params: {idUser}}, res) => {
-  const result = await RecordingService.getUserRecordings(idUser);
-  res.json(result);
-}));
-
-/**
- * @route   POST api/recording/:idUser
- * @desc    Gets recordings from user
- * @access  Public
- */
-router.get('/getMore/:idUser', auth, errorHandlerWrapper(async ({params: {idUser}, query: {count, last}}, res) => {
-  const result = await RecordingService.getMoreUserRecordings(idUser, parseInt(count), last);
+router.get('/:idUser', auth, errorHandlerWrapper(async ({params: {idUser}, query: {count, last}}, res) => {
+  const recordings = await RecordingService.getUserRecordings(idUser, parseInt(count));
+  const maxCount = await RecordingService.getUserRecordingsCount(idUser);
+  const result = {
+    recordings,
+    maxCount
+  }
   res.json(result);
 }));
 
