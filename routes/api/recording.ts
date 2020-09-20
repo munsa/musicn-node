@@ -13,9 +13,10 @@ const router = express.Router();
  * @desc    Gets an audio, identifies it and saves it if success
  * @access  Public
  */
-let cpUpload = upload.fields([{name: 'audio'}]);
+let cpUpload = upload.fields([{ name: 'audio'}, {name: 'geolocation'}]);
 router.post('/identify', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
-  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id);
+  const geolocation = JSON.parse(req.body.geolocation);
+  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id, geolocation);
   res.json(result);
 }));
 

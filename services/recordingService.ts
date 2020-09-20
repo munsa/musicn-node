@@ -14,21 +14,20 @@ export module RecordingService {
    * @name    identifyAudio
    * @param   buffer
    * @param   idUser
+   * @param   geolocation
    * @return  Recording
    */
-  export const identifyAudio = async (buffer: Buffer, idUser: number) => {
+  export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object) => {
     const acrCloudResult = await ACRCloudService.identify(buffer);
     const result = JSON.parse(acrCloudResult.body);
     console.log(result);
 
     switch (result.status.code) {
       case 0:
-        let recordingObject = createRecordingObject(idUser, result.metadata.music[0]);
+        let recordingObject = createRecordingObject(idUser, result.metadata.music[0], geolocation);
         await recordingObject.save();
 
-        const fullRecording = await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
-
-        return fullRecording;
+        return await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
       case 1001:
         return null;
       case 2004:
@@ -42,9 +41,10 @@ export module RecordingService {
    * @name    createRecordingObject
    * @param   idUser
    * @param   music
+   * @param   geolocation
    * @return  Recording
    */
-  const createRecordingObject = (idUser: number, music: any) => {
+  const createRecordingObject = (idUser: number, music: any, geolocation: object) => {
     return new Recording({
       user: idUser,
       acrid: music.acrid,
@@ -66,7 +66,8 @@ export module RecordingService {
         artists: music.external_metadata.deezer?.artists,
         track: music.external_metadata.deezer?.track,
         album: music.external_metadata.deezer?.album
-      }
+      },
+      geolocation: geolocation
     });
   }
 
