@@ -123,10 +123,22 @@ export module RecordingService {
   }
 
   /**
-   * @name    getAllRecordings
+   * @name    getAllGeolocations
    * @return  Recording[]
    */
-  export const getAllRecordings = async () => {
-    return await Recording.find().populate('user', 'avatar');
+  export const getAllGeolocations = async () => {
+    return await Recording.find(null, 'geolocation').populate('user', 'avatar');
+  }
+
+  /**
+   * @name    getRecordingFromId
+   * @param   idRecording
+   * @return  Recording
+   */
+  export const getRecordingFromId = async idRecording => {
+    const recording = await Recording.findById(idRecording).populate('user', 'avatar');
+    const recordingObject = recording.toObject();
+    await SpotifyService.getSpotifyTrackInformation(recordingObject);
+    return recordingObject;
   }
 }

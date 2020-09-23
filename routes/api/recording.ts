@@ -35,23 +35,18 @@ router.put('/addGeolocation/:idRecording', auth, errorHandlerWrapper(async ({par
  * @desc    Gets all the Recordings
  * @access  Public
  */
-router.get('/all', auth, errorHandlerWrapper(async (req, res) => {
-  const result = await RecordingService.getAllRecordings();
+router.get('/allGeolocations', auth, errorHandlerWrapper(async (req, res) => {
+  const result = await RecordingService.getAllGeolocations();
   res.json(result);
 }));
 
 /**
- * @route   POST api/recording/:idUser
- * @desc    Gets recordings from user
+ * @route   POST api/recording/:idRecording
+ * @desc    Gets recording
  * @access  Public
  */
-router.get('/:idUser', auth, errorHandlerWrapper(async ({params: {idUser}, query: {count, last}}, res) => {
-  const recordings = await RecordingService.getUserRecordings(idUser, parseInt(count));
-  const maxCount = await RecordingService.getUserRecordingsCount(idUser);
-  const result = {
-    recordings,
-    maxCount
-  }
+router.get('/:idRecording', auth, errorHandlerWrapper(async ({params: {idRecording}}, res) => {
+  const result = await RecordingService.getRecordingFromId(idRecording);
   res.json(result);
 }));
 
