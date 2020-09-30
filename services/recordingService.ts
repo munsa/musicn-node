@@ -32,6 +32,8 @@ export module RecordingService {
         return null;
       case 2004:
         throw new CustomError(CustomError.CANT_GENERATE_FINGERPRINT);
+      case 3003:
+        throw new CustomError(CustomError.REQUESTS_LIMIT_EXCEEDED);
       default:
         throw new CustomError(CustomError.UNKNOWN_ACRCLOUD_API_ERROR);
     }
@@ -136,7 +138,7 @@ export module RecordingService {
    * @return  Recording
    */
   export const getRecordingFromId = async idRecording => {
-    const recording = await Recording.findById(idRecording).populate('user', 'avatar');
+    const recording = await Recording.findById(idRecording).populate('user', 'avatar username');
     const recordingObject = recording.toObject();
     await SpotifyService.getSpotifyTrackInformation(recordingObject);
     return recordingObject;

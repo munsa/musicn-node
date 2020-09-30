@@ -58,19 +58,14 @@ router.post(
 router.post(
   '/register',
   [
-    check('username', 'Username is required')
-      .not()
-      .isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
-    check(
-      'password',
-      'Please enter a password with 6 or more characters'
-    ).isLength({min: 6})
+    check('username').not().isEmpty().withMessage('Username is required').isLength({min: 6}).withMessage('Username must be at least 3 chars long'),
+    check('email').isEmail().withMessage('Please include a valid email'),
+    check('password').isLength({min: 6}).withMessage('Password must be at least 6 chars long')
   ],
   errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        throw new CustomError(errors.array(), CustomError.STATUS_CODE_BAD_REQUEST);
+        return res.status(400).json({errors: errors.array()});
       }
       const {username, email, password} = req.body;
 
