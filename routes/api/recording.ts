@@ -13,9 +13,10 @@ const router = express.Router();
  * @desc    Gets an audio, identifies it and saves it if success
  * @access  Public
  */
-let cpUpload = upload.fields([{name: 'audio'}]);
+let cpUpload = upload.fields([{ name: 'audio'}, {name: 'geolocation'}]);
 router.post('/identify', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
-  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id);
+  const geolocation = JSON.parse(req.body.geolocation);
+  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id, geolocation);
   res.json(result);
 }));
 
@@ -34,18 +35,18 @@ router.put('/addGeolocation/:idRecording', auth, errorHandlerWrapper(async ({par
  * @desc    Gets all the Recordings
  * @access  Public
  */
-router.get('/all', auth, errorHandlerWrapper(async (req, res) => {
-  const result = await RecordingService.getAllRecordings();
+router.get('/allGeolocations', auth, errorHandlerWrapper(async (req, res) => {
+  const result = await RecordingService.getAllGeolocations();
   res.json(result);
 }));
 
 /**
- * @route   POST api/recording/:idUser
- * @desc    Gets recordings from user
+ * @route   POST api/recording/:idRecording
+ * @desc    Gets recording
  * @access  Public
  */
-router.get('/:idUser', auth, errorHandlerWrapper(async ({params: {idUser}}, res) => {
-  const result = await RecordingService.getUserRecordings(idUser);
+router.get('/:idRecording', auth, errorHandlerWrapper(async ({params: {idRecording}}, res) => {
+  const result = await RecordingService.getRecordingFromId(idRecording);
   res.json(result);
 }));
 

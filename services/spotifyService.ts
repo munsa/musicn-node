@@ -38,4 +38,28 @@ export module SpotifyService {
     return await spotifyApi.getTracks(trackIds);
   }
 
+  export const getSpotifyTrackInformation = async (recording) => {
+    if (recording.spotify?.track?.id) {
+      recording.spotify.api = (await SpotifyService.getTrack(recording.spotify.track.id)).body;
+    }
+    return recording;
+  }
+
+  export const getSpotifyTracksInformation = async (recordings: any[]) => {
+    if (recordings.length > 0) {
+      let trackIds = recordings.filter(r => {
+        return r.spotify?.track?.id
+      }).map(r => r.spotify.track.id);
+      let trackList = (await SpotifyService.getTracks(trackIds)).body;
+      trackList.tracks.forEach(a => {
+        recordings.filter(r => {
+          return r.spotify?.track?.id
+        }).forEach(b => {
+          if (a.id === b.spotify.track.id) {
+            b.spotify.api = a;
+          }
+        });
+      });
+    }
+  }
 }

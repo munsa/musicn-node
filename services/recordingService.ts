@@ -14,22 +14,26 @@ export module RecordingService {
    * @name    identifyAudio
    * @param   buffer
    * @param   idUser
+   * @param   geolocation
    * @return  Recording
    */
-  export const identifyAudio = async (buffer: Buffer, idUser: number) => {
+  export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object) => {
     const acrCloudResult = await ACRCloudService.identify(buffer);
     const result = JSON.parse(acrCloudResult.body);
     console.log(result);
 
     switch (result.status.code) {
       case 0:
-        let recordingObject = createRecordingObject(idUser, result.metadata.music[0]);
+        let recordingObject = createRecordingObject(idUser, result.metadata.music[0], geolocation);
         await recordingObject.save();
-        return recordingObject
+
+        return await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
       case 1001:
         return null;
       case 2004:
         throw new CustomError(CustomError.CANT_GENERATE_FINGERPRINT);
+      case 3003:
+        throw new CustomError(CustomError.REQUESTS_LIMIT_EXCEEDED);
       default:
         throw new CustomError(CustomError.UNKNOWN_ACRCLOUD_API_ERROR);
     }
@@ -39,9 +43,10 @@ export module RecordingService {
    * @name    createRecordingObject
    * @param   idUser
    * @param   music
+   * @param   geolocation
    * @return  Recording
    */
-  const createRecordingObject = (idUser: number, music: any) => {
+  const createRecordingObject = (idUser: number, music: any, geolocation: object) => {
     return new Recording({
       user: idUser,
       acrid: music.acrid,
@@ -63,7 +68,8 @@ export module RecordingService {
         artists: music.external_metadata.deezer?.artists,
         track: music.external_metadata.deezer?.track,
         album: music.external_metadata.deezer?.album
-      }
+      },
+      geolocation: geolocation
     });
   }
 
@@ -97,34 +103,44 @@ export module RecordingService {
   /**
    * @name    getUserRecordings
    * @param   idUser
+   * @param   count
    * @return  Recording[]
    */
-  export const getUserRecordings = async (idUser: number) => {
-    const userRecordings = await Recording.find({user: idUser}).limit(20).sort('-date');
+  export const getUserRecordings = async (idUser: number, count: number) => {
+    const userRecordings = await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
-    // Get spotify information
-    if(userRecordingsObject.length > 0) {
-      let trackIds = userRecordingsObject.filter( r => {return r.spotify?.track?.id}).map( r => r.spotify.track.id);
-      let trackList = (await SpotifyService.getTracks(trackIds)).body;
-      trackList.tracks.forEach( a => {
-        userRecordingsObject.filter( r => {return r.spotify?.track?.id}).forEach( b => {
-          if (a.id === b.spotify.track.id) {
-            b.spotify.api = a;
-          }
-        });
-      });
-    }
-
+    await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
 
     return userRecordingsObject;
   }
 
   /**
-   * @name    getAllRecordings
+   * @name    getUserRecordingsCount
+   * @param   idUser
+   * @return  number
+   */
+  export const getUserRecordingsCount = async (idUser: number) => {
+    return await Recording.count({user: idUser});
+  }
+
+  /**
+   * @name    getAllGeolocations
    * @return  Recording[]
    */
-  export const getAllRecordings = async () => {
-    return await Recording.find().populate('user', 'avatar');
+  export const getAllGeolocations = async () => {
+    return await Recording.find(null, 'geolocation').populate('user', 'avatar');
+  }
+
+  /**
+   * @name    getRecordingFromId
+   * @param   idRecording
+   * @return  Recording
+   */
+  export const getRecordingFromId = async idRecording => {
+    const recording = await Recording.findById(idRecording).populate('user', 'avatar username');
+    const recordingObject = recording.toObject();
+    await SpotifyService.getSpotifyTrackInformation(recordingObject);
+    return recordingObject;
   }
 }

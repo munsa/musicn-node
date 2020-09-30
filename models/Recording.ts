@@ -19,8 +19,8 @@ export const RecordingSchema = new mongoose.Schema({
   spotify: RecordingSourceSchema,
   deezer: RecordingSourceSchema,
   geolocation: {
-    latitude: Number,
-    longitude: Number
+    lat: Number,
+    lng: Number
   }
 });
 
