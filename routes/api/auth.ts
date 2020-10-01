@@ -2,6 +2,7 @@ import express from 'express';
 import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
 import UserService from '../../services/userService';
+const { body } = require('express-validator');
 
 const {check, validationResult} = require('express-validator');
 const router = express.Router();
@@ -58,9 +59,17 @@ router.post(
 router.post(
   '/register',
   [
-    check('username').not().isEmpty().withMessage('Username is required').isLength({min: 6}).withMessage('Username must be at least 3 chars long'),
-    check('email').isEmail().withMessage('Please include a valid email'),
-    check('password').isLength({min: 6}).withMessage('Password must be at least 6 chars long')
+    check('username').not().isEmpty().isLength({min: 3}),
+    check('email').isEmail().trim().escape(),
+    check('password').isLength({min: 6}),
+    body('username').custom(async (value, { req }) => {
+      const existsUsername =  await UserService.existsUsername(value);
+      if (existsUsername) {
+        throw new Error('Username already exists');
+      }
+      return true;
+    })
+
   ],
   errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
@@ -78,6 +87,13 @@ router.post(
           res.json({token});
         })
       }
+    }
+  ));
+
+router.get(
+  '/existsUsername/:username', errorHandlerWrapper(async ({params: {username}}, res) => {
+      const result =  await UserService.existsUsername(username);
+      res.json(result);
     }
   ));
 

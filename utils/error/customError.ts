@@ -33,7 +33,8 @@ export class CustomError extends Error {
   static readonly STATUS_CODE_GATEWAY_TIMEOUT = 504;
   static readonly STATUS_CODE_NETWORK_TIMEOUT = 599;
 
-  // Error Messages
+
+  // ERROR MESSAGES
   static readonly INTERNAL_SERVER_ERROR = 'Server error';
   static readonly CANT_GENERATE_FINGERPRINT = 'Can\'t generate fingerprint';
   static readonly REQUESTS_LIMIT_EXCEEDED = 'Requests limit exceded';

@@ -111,6 +111,16 @@ export module UserService {
       tokenCallback
     );
   }
+
+  /**
+   * @name    existsUsername
+   * @desc    checks if it exists already a user with given username
+   * @param   username
+   * @return  boolean
+   */
+  export const existsUsername = async(username: string) => {
+    return await User.exists({username: username});
+  }
 }
 
 export default UserService
