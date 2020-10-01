@@ -60,12 +60,19 @@ router.post(
   '/register',
   [
     check('username').not().isEmpty().isLength({min: 3}),
-    check('email').isEmail().trim().escape(),
+    check('email').isEmail(),
     check('password').isLength({min: 6}),
     body('username').custom(async (value, { req }) => {
       const existsUsername =  await UserService.existsUsername(value);
       if (existsUsername) {
-        throw new Error('Username already exists');
+        throw new Error(CustomError.USERNAME_ALREADY_EXISTS);
+      }
+      return true;
+    }),
+    body('email').custom(async (value, { req }) => {
+      const existsEmail =  await UserService.existsEmail(value);
+      if (existsEmail) {
+        throw new Error(CustomError.EMAIL_ALREADY_EXISTS);
       }
       return true;
     })

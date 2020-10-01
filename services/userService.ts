@@ -58,7 +58,7 @@ export module UserService {
     // See if user already exists
     let user = await User.findOne({email});
     if (user) {
-      throw new CustomError(CustomError.USER_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
+      throw new CustomError(CustomError.USERNAME_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
     }
 
     // Get Adorable Avatar
@@ -114,12 +114,22 @@ export module UserService {
 
   /**
    * @name    existsUsername
-   * @desc    checks if it exists already a user with given username
+   * @desc    checks if already exists a user with given username
    * @param   username
    * @return  boolean
    */
   export const existsUsername = async(username: string) => {
     return await User.exists({username: username});
+  }
+
+  /**
+   * @name    existsEmail
+   * @desc    checks if already exists a user with given email
+   * @param   email
+   * @return  boolean
+   */
+  export const existsEmail = async(email: string) => {
+    return await User.exists({email: email});
   }
 }
 
