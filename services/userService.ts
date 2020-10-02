@@ -31,19 +31,18 @@ export module UserService {
    * @return  idUser
    */
   export const login = async (email: string, password: string) => {
-    // See if user already exists
+    // Check if user already exists
     let user = await User.findOne({email});
     if (!user) {
-      throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
+      return null;
     }
 
-    // See if password is correct
+    // Check if password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       return user.id;
     } else {
-      // Same response for security reasons
-      throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
+      return null
     }
   }
 

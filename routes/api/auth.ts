@@ -2,7 +2,8 @@ import express from 'express';
 import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
 import UserService from '../../services/userService';
-const { body } = require('express-validator');
+
+const {body} = require('express-validator');
 
 const {check, validationResult} = require('express-validator');
 const router = express.Router();
@@ -28,17 +29,17 @@ router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
 router.post(
   '/login',
   [
-    check('email', CustomError.INVALID_EMAIL).isEmail(),
-    check('password', CustomError.REQUIRED_PASSWORD).exists()
+    check('username').exists(),
+    check('password').exists()
   ],
   errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        throw new CustomError(errors.array(), CustomError.STATUS_CODE_BAD_REQUEST);
+        return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({errors: errors.array()});
       }
-      const {email, password} = req.body;
+      const {username, password} = req.body;
 
-      const idUser = await UserService.login(email, password);
+      const idUser = await UserService.login(username, password);
 
       if (idUser) {
         UserService.generateToken(idUser, (err, token) => {
@@ -47,6 +48,12 @@ router.post(
           }
           res.json({token});
         })
+      } else {
+        return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({
+          errors: [
+            {param: 'username', msg: ' '},
+            {param: 'password', msg: CustomError.INVALID_CREDENTIALS}
+            ]});
       }
     }
   ));
@@ -59,26 +66,26 @@ router.post(
 router.post(
   '/register',
   [
-    check('username').not().isEmpty().isLength({min: 3}).custom(async (value, { req }) => {
-      const existsUsername =  await UserService.existsUsername(value);
+    check('username').exists().not().isEmpty().isLength({min: 3}).custom(async (value, {req}) => {
+      const existsUsername = await UserService.existsUsername(value);
       if (existsUsername) {
         throw new Error(CustomError.USERNAME_ALREADY_EXISTS);
       }
       return true;
     }),
-    check('email').isEmail().custom(async (value, { req }) => {
-      const existsEmail =  await UserService.existsEmail(value);
+    check('email').exists().isEmail().custom(async (value, {req}) => {
+      const existsEmail = await UserService.existsEmail(value);
       if (existsEmail) {
         throw new Error(CustomError.EMAIL_ALREADY_EXISTS);
       }
       return true;
     }),
-    check('password').isLength({min: 6})
+    check('password').exists().isLength({min: 6})
   ],
   errorHandlerWrapper(async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
+        return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({errors: errors.array()});
       }
       const {username, email, password} = req.body;
 
@@ -96,7 +103,7 @@ router.post(
 
 router.get(
   '/existsUsername/:username', errorHandlerWrapper(async ({params: {username}}, res) => {
-      const result =  await UserService.existsUsername(username);
+      const result = await UserService.existsUsername(username);
       res.json(result);
     }
   ));
