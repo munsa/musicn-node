@@ -14,7 +14,7 @@ export module ProfileService {
 
       return user;
     } else {
-      throw new CustomError(CustomError.USER_DOESNT_EXIST)
+      throw new CustomError(CustomError.USER_DOES_NOT_EXIST)
     }
   }
 }

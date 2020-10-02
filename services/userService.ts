@@ -26,24 +26,23 @@ export module UserService {
 
   /**
    * @name    login
-   * @param   email
+   * @param   username
    * @param   password
    * @return  idUser
    */
-  export const login = async (email: string, password: string) => {
-    // See if user already exists
-    let user = await User.findOne({email});
+  export const login = async (username: string, password: string) => {
+    // Check if user already exists
+    let user = await User.findOne({$or: [{username: username}, {email: username}]});
     if (!user) {
-      throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
+      return null;
     }
 
-    // See if password is correct
+    // Check if password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       return user.id;
     } else {
-      // Same response for security reasons
-      throw new CustomError(CustomError.INVALID_CREDENTIALS, CustomError.STATUS_CODE_BAD_REQUEST);
+      return null
     }
   }
 
@@ -58,7 +57,7 @@ export module UserService {
     // See if user already exists
     let user = await User.findOne({email});
     if (user) {
-      throw new CustomError(CustomError.USER_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
+      throw new CustomError(CustomError.USERNAME_ALREADY_EXISTS, CustomError.STATUS_CODE_BAD_REQUEST);
     }
 
     // Get Adorable Avatar
@@ -110,6 +109,26 @@ export module UserService {
       {expiresIn: 3600},
       tokenCallback
     );
+  }
+
+  /**
+   * @name    existsUsername
+   * @desc    checks if already exists a user with given username
+   * @param   username
+   * @return  boolean
+   */
+  export const existsUsername = async(username: string) => {
+    return await User.exists({username: username});
+  }
+
+  /**
+   * @name    existsEmail
+   * @desc    checks if already exists a user with given email
+   * @param   email
+   * @return  boolean
+   */
+  export const existsEmail = async(email: string) => {
+    return await User.exists({email: email});
   }
 }
 
