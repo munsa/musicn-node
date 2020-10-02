@@ -26,13 +26,13 @@ export module UserService {
 
   /**
    * @name    login
-   * @param   email
+   * @param   username
    * @param   password
    * @return  idUser
    */
-  export const login = async (email: string, password: string) => {
+  export const login = async (username: string, password: string) => {
     // Check if user already exists
-    let user = await User.findOne({email});
+    let user = await User.findOne({$or: [{username: username}, {email: username}]});
     if (!user) {
       return null;
     }
