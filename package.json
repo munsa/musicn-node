@@ -22,7 +22,7 @@
     "url": "git+https://github.com/munsa/musicn-node.git"
   },
   "scripts": {
-    "start": "node src/index.ts",
+    "start": "tsc && node ./build/index.js",
     "server": "nodemon src/index.ts",
     "tsc": "tsc",
     "build": "tsc",
