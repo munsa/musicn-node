@@ -1,5 +1,6 @@
 node_modules/
 build/
 .idea/
-config/default.json
-config/external_apis/
+src/config/default.json
+src/config/external_apis/
+.env

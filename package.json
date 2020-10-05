@@ -22,11 +22,12 @@
     "url": "git+https://github.com/munsa/musicn-node.git"
   },
   "scripts": {
-    "start": "node ./app/app.ts",
-    "server": "nodemon ./app/app.ts",
+    "start": "node src/index.ts",
+    "server": "nodemon src/index.ts",
     "tsc": "tsc",
-    "dev-server": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
-    "prod": "tsc && node ./build/app.js"
+    "build": "tsc",
+    "dev-server": "ts-node-dev --respawn --transpileOnly src/index.ts",
+    "prod": "tsc && node ./build/index.js"
   },
   "dependencies": {
     "@types/express": "^4.17.0",
@@ -36,6 +37,7 @@
     "bcryptjs": "^2.4.3",
     "config": "^3.2.2",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.1.1",
     "gravatar": "^1.8.0",
