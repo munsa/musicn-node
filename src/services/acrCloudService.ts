@@ -1,5 +1,6 @@
 const ACRCloud = require('acr-cloud');
-const ACRCloudConfig = require('../config/external_apis/acrCloud.json');
+const dotenv = require('dotenv');
+dotenv.config();
 
 export module ACRCloudService {
   /**
@@ -8,8 +9,8 @@ export module ACRCloudService {
   export const identify = async (buffer): Promise<any> => {
     let acr = new ACRCloud({
       // required
-      access_key: ACRCloudConfig.access_key,
-      access_secret: ACRCloudConfig.access_secret,
+      access_key: process.env.ACR_CLOUD_ACCESS_KEY,
+      access_secret: process.env.ACR_CLOUD_ACCESS_SECRET,
       // optional
       requrl: 'identify-eu-west-1.acrcloud.com',
       http_method: 'POST',

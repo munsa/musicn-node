@@ -1,7 +1,8 @@
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
-import config = require('config');
 import {CustomError} from '../utils/error/customError';
+const dotenv = require('dotenv');
+dotenv.config();
 
 const User = require('../models/User');
 
@@ -105,7 +106,7 @@ export module UserService {
     // Sign the token
     jwt.sign(
       payload,
-      config.get('jwtSecret'),
+      process.env.JWT_SECRET,
       {expiresIn: 3600},
       tokenCallback
     );

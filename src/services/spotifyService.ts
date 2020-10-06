@@ -1,11 +1,12 @@
 let SpotifyWebApi = require('spotify-web-api-node');
-const SpotifyConfig = require('../config/external_apis/spotify.json')
+const dotenv = require('dotenv');
+dotenv.config();
 
 export module SpotifyService {
 
   let spotifyApi = new SpotifyWebApi({
-    clientId: SpotifyConfig.spotify_client_id,
-    clientSecret: SpotifyConfig.spotify_client_secret
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET
   });
 
   // Retrieve an access token.
