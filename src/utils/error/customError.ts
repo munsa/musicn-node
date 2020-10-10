@@ -37,7 +37,7 @@ export class CustomError extends Error {
   // ERROR MESSAGES
   static readonly INTERNAL_SERVER_ERROR = 'Server error';
   static readonly CANT_GENERATE_FINGERPRINT = 'Can\'t generate fingerprint';
-  static readonly REQUESTS_LIMIT_EXCEEDED = 'Requests limit exceded';
+  static readonly REQUESTS_LIMIT_EXCEEDED = 'Requests limit exceeded';
   static readonly UNKNOWN_ACRCLOUD_API_ERROR = 'Unknown ACRCloud error';
   static readonly USER_NOT_FOUND = 'User not found';
   static readonly NOT_FOUND = 'Not found';

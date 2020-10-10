@@ -92,7 +92,7 @@ export module RecordingService {
   export const writeWavFile = (buffer: Buffer): void => {
     const messageId = v4();
     writeFile('./temp/' + messageId + '.wav', new Buffer(buffer), 'base64').then(() => {
-      let filename = './../../temp/' + messageId + '.wav';
+      let filename = './temp/' + messageId + '.wav';
       let bitmap: Buffer = fs.readFileSync(path.resolve(__dirname, filename));
       //identifyAudio(bitmap);
     }).catch(err => {
