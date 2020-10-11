@@ -3,11 +3,8 @@ import {errorHandlerWrapper} from '../../middleware/error';
 import {CustomError} from '../../utils/error/customError';
 import UserService from '../../services/userService';
 
-const {body} = require('express-validator');
-
 const {check, validationResult} = require('express-validator');
-const router = express.Router();
-
+const authRouter = express.Router();
 
 const auth = require('../../middleware/auth');
 
@@ -16,7 +13,7 @@ const auth = require('../../middleware/auth');
  * @desc    Get authenticated user
  * @access  Public
  */
-router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
+authRouter.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
   const user = await UserService.getUserById(req.user.id);
   res.json(user);
 }));
@@ -26,44 +23,46 @@ router.get('/user', auth, errorHandlerWrapper(async (req: any, res) => {
  * @desc    Authenticate user & get token
  * @access  Public
  */
-router.post(
+authRouter.post(
   '/login',
   [
     check('username').exists(),
     check('password').exists()
   ],
   errorHandlerWrapper(async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({errors: errors.array()});
-      }
-      const {username, password} = req.body;
 
-      const idUser = await UserService.login(username, password);
-
-      if (idUser) {
-        UserService.generateToken(idUser, (err, token) => {
-          if (err) {
-            throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
-          }
-          res.json({token});
-        })
-      } else {
-        return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({
-          errors: [
-            {param: 'username', msg: ' '},
-            {param: 'password', msg: CustomError.INVALID_CREDENTIALS}
-            ]});
-      }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({errors: errors.array()});
     }
-  ));
+    const {username, password} = req.body;
+
+    const idUser = await UserService.login(username, password);
+
+    if (idUser) {
+      UserService.generateToken(idUser, (err, token) => {
+        if (err) {
+          throw new CustomError(CustomError.ERROR_SIGNING_TOKEN);
+        }
+        res.json({token});
+      })
+    } else {
+      return res.status(CustomError.STATUS_CODE_BAD_REQUEST).json({
+        errors: [
+          {param: 'username', msg: ' '},
+          {param: 'password', msg: CustomError.INVALID_CREDENTIALS}
+        ]
+      });
+    }
+  })
+);
 
 /**
  * @route   POST api/auth/register
  * @desc    Register user
  * @access  Public
  */
-router.post(
+authRouter.post(
   '/register',
   [
     check('username').exists().not().isEmpty().isLength({min: 3}).custom(async (value, {req}) => {
@@ -101,7 +100,12 @@ router.post(
     }
   ));
 
-router.get(
+/**
+ * @route   POST api/auth/existsUsername/:username
+ * @desc    Checks if exists user with given username
+ * @access  Public
+ */
+authRouter.get(
   '/existsUsername/:username', errorHandlerWrapper(async ({params: {username}}, res) => {
       const result = await UserService.existsUsername(username);
       res.json(result);
@@ -109,4 +113,4 @@ router.get(
   ));
 
 
-module.exports = router;
+export default authRouter;

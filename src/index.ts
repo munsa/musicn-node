@@ -1,7 +1,9 @@
 import express from 'express';
+import {CustomError} from './utils/error/customError';
+import apiRouter from './routes';
+
 const mongoose = require('mongoose');
 const cors = require('cors');
-const auth = require('./routes/api/auth');
 const app = express();
 const dotenv = require('dotenv');
 dotenv.config();
@@ -28,9 +30,16 @@ app.use(cors())
 app.get('/', (req, res) => res.send('API Running'));
 
 // Define Routes
-app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/profile', require('./routes/api/profile'));
-app.use('/api/recording', require('./routes/api/recording'));
+app.use(apiRouter);
+
+app.all('*', async (req, res, next) => {
+  const err = new CustomError(
+    `${req.originalUrl} does not exist on the server`,
+    404
+  );
+
+  next(err);
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
