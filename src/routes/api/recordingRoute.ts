@@ -41,12 +41,22 @@ recordingRouter.get('/allGeolocations', auth, errorHandlerWrapper(async (req, re
 }));
 
 /**
- * @route   POST api/recording/:idRecording
+ * @route   GET api/recording/:idRecording
  * @desc    Gets recording
  * @access  Public
  */
 recordingRouter.get('/:idRecording', auth, errorHandlerWrapper(async ({params: {idRecording}}, res) => {
   const result = await RecordingService.getRecordingFromId(idRecording);
+  res.json(result);
+}));
+
+/**
+ * @route   GET api/recording/genre/:genreName
+ * @desc    Gets a list of recordings of given genre.
+ * @access  Public
+ */
+recordingRouter.get('/genre/:genreName', auth, errorHandlerWrapper(async ({params: {genreName}, query: {limit}}, res) => {
+  const result = await RecordingService.getTopListFromGenre(genreName, parseInt(limit));
   res.json(result);
 }));
 

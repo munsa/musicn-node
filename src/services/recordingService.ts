@@ -2,9 +2,9 @@ import {CustomError} from '../utils/error/customError';
 import {promisify} from 'util';
 import {v4} from 'uuid';
 import {ACRCloudService} from './acrCloudService';
+import {SpotifyService} from './spotifyService';
 import fs = require('fs');
 import path = require('path');
-import {SpotifyService} from './spotifyService';
 
 const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
@@ -142,5 +142,79 @@ export module RecordingService {
     const recordingObject = recording.toObject();
     await SpotifyService.getSpotifyTrackInformation(recordingObject);
     return recordingObject;
+  }
+
+  /**
+   * @name    getTopListFromGenre
+   * @param   genreName
+   * @param   limit
+   * @return  Recording
+   */
+  export const getTopListFromGenre = async (genreName, limit) => {
+    const test = await Recording.find({genres: genreName});
+    const recordings = await Recording.aggregate(
+      [
+        {
+          '$match': {
+            'genres': 'Hip Hop'
+          }
+        },
+        {
+          '$group': {
+            '_id': '$acrid',
+            'count': {
+              '$sum': 1.0
+            }
+          }
+        },
+        {
+          '$sort': {
+            'count': -1.0
+          }
+        },
+        {
+          '$limit': 10.0
+        },
+        {
+          '$lookup': {
+            'from': 'recordings',
+            'localField': '_id',
+            'foreignField': 'acrid',
+            'as': 'recording'
+          }
+        },
+        {
+          '$project': {
+            '_id': 0.0,
+            'count': true,
+            'acrid': {
+              '$arrayElemAt': [
+                '$recording.acrid',
+                0.0
+              ]
+            },
+            'acrCloud': {
+              '$arrayElemAt': [
+                '$recording.acrCloud',
+                0.0
+              ]
+            },
+            'spotify': {
+              '$arrayElemAt': [
+                '$recording.spotify',
+                0.0
+              ]
+            },
+            'deezer': {
+              '$arrayElemAt': [
+                '$recording.deezer',
+                0.0
+              ]
+            }
+          }
+        }
+      ]);
+    await SpotifyService.getSpotifyTracksInformation(recordings);
+    return recordings;
   }
 }
