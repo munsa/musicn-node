@@ -1,7 +1,9 @@
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import {CustomError} from '../utils/error/customError';
+import {getColorFromImage} from '../utils/generalFunctionsHelper';
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 const User = require('../models/User');
@@ -64,18 +66,14 @@ export module UserService {
     // Get Adorable Avatar
     const avatar = 'https://api.adorable.io/avatars/285/' + email + '.png';
 
-    // Get Gravatar
-    /*const avatar = gravatar.url(email, {
-      s: '200',
-      r: 'pg',
-      d: 'mm'
-    });*/
+    let avatarColor = await getColorFromImage(avatar);
 
     // Create User object
     user = new User({
       username,
       email,
       avatar,
+      avatarColor,
       password
     });
 

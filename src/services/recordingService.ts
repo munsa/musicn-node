@@ -5,6 +5,7 @@ import {ACRCloudService} from './acrCloudService';
 import {SpotifyService} from './spotifyService';
 import fs = require('fs');
 import path = require('path');
+import UserService from './userService';
 
 const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
@@ -24,7 +25,8 @@ export module RecordingService {
 
     switch (result.status.code) {
       case 0:
-        let recordingObject = createRecordingObject(idUser, result.metadata.music[0], geolocation);
+        const user = await UserService.getUserById(idUser);
+        let recordingObject = createRecordingObject(user, result.metadata.music[0], geolocation);
         await recordingObject.save();
 
         return await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
@@ -46,9 +48,12 @@ export module RecordingService {
    * @param   geolocation
    * @return  Recording
    */
-  const createRecordingObject = (idUser: number, music: any, geolocation: object) => {
+  const createRecordingObject = (user: any, music: any, geolocation: object) => {
     return new Recording({
-      user: idUser,
+      user: {
+        _id: user.id,
+        avatarColor: user.avatarColor
+      },
       acrid: music.acrid,
       genres: music.genres?.map(g => {
         return g['name']
@@ -107,7 +112,7 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getUserRecordings = async (idUser: number, count: number) => {
-    const userRecordings = await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
+    const userRecordings = await Recording.find({user: idUser}).populate('user', 'avatarColor').skip(count).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
     await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
@@ -129,7 +134,7 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getAllGeolocations = async () => {
-    return await Recording.find(null, 'geolocation').populate('user', 'avatar');
+    return await Recording.find(null, 'geolocation').populate('user', 'avatarColor');
   }
 
   /**
@@ -154,63 +159,19 @@ export module RecordingService {
     const test = await Recording.find({genres: genreName});
     const recordings = await Recording.aggregate(
       [
-        {
-          '$match': {
-            'genres': 'Hip Hop'
-          }
-        },
-        {
-          '$group': {
-            '_id': '$acrid',
-            'count': {
-              '$sum': 1.0
-            }
-          }
-        },
-        {
-          '$sort': {
-            'count': -1.0
-          }
-        },
-        {
-          '$limit': 10.0
-        },
-        {
-          '$lookup': {
-            'from': 'recordings',
-            'localField': '_id',
-            'foreignField': 'acrid',
-            'as': 'recording'
-          }
-        },
+        {'$match': {'genres': genreName}},
+        {'$group': {'_id': '$acrid', 'count': {'$sum': 1.0}}},
+        {'$sort': {'count': -1.0}},
+        {'$limit': limit},
+        {'$lookup': {'from': 'recordings', 'localField': '_id', 'foreignField': 'acrid', 'as': 'recording'}},
         {
           '$project': {
             '_id': 0.0,
             'count': true,
-            'acrid': {
-              '$arrayElemAt': [
-                '$recording.acrid',
-                0.0
-              ]
-            },
-            'acrCloud': {
-              '$arrayElemAt': [
-                '$recording.acrCloud',
-                0.0
-              ]
-            },
-            'spotify': {
-              '$arrayElemAt': [
-                '$recording.spotify',
-                0.0
-              ]
-            },
-            'deezer': {
-              '$arrayElemAt': [
-                '$recording.deezer',
-                0.0
-              ]
-            }
+            'acrid': {'$arrayElemAt': ['$recording.acrid', 0.0]},
+            'acrCloud': {'$arrayElemAt': ['$recording.acrCloud', 0.0]},
+            'spotify': {'$arrayElemAt': ['$recording.spotify', 0.0]},
+            'deezer': {'$arrayElemAt': ['$recording.deezer', 0.0]}
           }
         }
       ]);
