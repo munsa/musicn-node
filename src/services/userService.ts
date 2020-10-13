@@ -28,6 +28,15 @@ export module UserService {
   }
 
   /**
+   * @name    getUserAvatarColorByUserId
+   * @param   idUser
+   * @return  User
+   */
+  export const getUserAvatarColorByUserId = async (idUser: number) => {
+    return await User.findById(idUser).select('avatarColor');
+  }
+
+  /**
    * @name    login
    * @param   username
    * @param   password

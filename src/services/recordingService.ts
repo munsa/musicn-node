@@ -25,9 +25,10 @@ export module RecordingService {
 
     switch (result.status.code) {
       case 0:
-        const user = await UserService.getUserById(idUser);
+        const user = await UserService.getUserAvatarColorByUserId(idUser);
         let recordingObject = createRecordingObject(user, result.metadata.music[0], geolocation);
         await recordingObject.save();
+        recordingObject.user.avatarColor = user.avatarColor;
 
         return await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
       case 1001:
@@ -50,10 +51,7 @@ export module RecordingService {
    */
   const createRecordingObject = (user: any, music: any, geolocation: object) => {
     return new Recording({
-      user: {
-        _id: user.id,
-        avatarColor: user.avatarColor
-      },
+      user,
       acrid: music.acrid,
       genres: music.genres?.map(g => {
         return g['name']
@@ -115,7 +113,11 @@ export module RecordingService {
     const userRecordings = await Recording.find({user: idUser}).populate('user', 'avatarColor').skip(count).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
-    await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
+    try {
+      await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
+    } catch (e) {
+     console.log(e);
+    }
 
     return userRecordingsObject;
   }
@@ -135,6 +137,14 @@ export module RecordingService {
    */
   export const getAllGeolocations = async () => {
     return await Recording.find(null, 'geolocation').populate('user', 'avatarColor');
+  }
+
+  /**
+   * @name    getAllGeolocations
+   * @return  Recording[]
+   */
+  export const getAllUserGeolocations = async (idUser) => {
+    return await Recording.find({user: idUser}, 'geolocation').populate('user', 'avatarColor');
   }
 
   /**

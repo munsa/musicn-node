@@ -46,7 +46,7 @@ export module SpotifyService {
     return recording;
   }
 
-  export const getSpotifyTracksInformation = async (recordings: any[]) => {
+  export const getSpotifyTracksInformation = async (recordings) => {
     if (recordings.length > 0) {
       let trackIds = recordings.filter(r => {
         return r.spotify?.track?.id

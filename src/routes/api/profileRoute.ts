@@ -21,7 +21,7 @@ profileRouter.get('/:username', auth, errorHandlerWrapper(async ({params: {usern
  * @desc    Gets recordings from user
  * @access  Public
  */
-profileRouter.get('/:idUser/recordings', auth, errorHandlerWrapper(async ({params: {idUser}, query: {count, last}}, res) => {
+profileRouter.get('/:idUser/recordings', auth, errorHandlerWrapper(async ({params: {idUser}, query: {count}}, res) => {
   const recordings = await RecordingService.getUserRecordings(idUser, parseInt(count));
   const maxCount = await RecordingService.getUserRecordingsCount(idUser);
   const result = {
