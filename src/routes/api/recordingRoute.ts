@@ -31,12 +31,22 @@ recordingRouter.put('/addGeolocation/:idRecording', auth, errorHandlerWrapper(as
 }));
 
 /**
- * @route   GET api/recording/all
- * @desc    Gets all the Recordings
+ * @route   GET api/recording/allGeolocations
+ * @desc    Gets all the geolocations
  * @access  Public
  */
 recordingRouter.get('/allGeolocations', auth, errorHandlerWrapper(async (req, res) => {
   const result = await RecordingService.getAllGeolocations();
+  res.json(result);
+}));
+
+/**
+ * @route   GET api/recording/:user/allGeolocations
+ * @desc    Gets all the geolocations from user
+ * @access  Public
+ */
+recordingRouter.get('/:idUser/allGeolocations', auth, errorHandlerWrapper(async ({query: {idUser}}, res) => {
+  const result = await RecordingService.getAllUserGeolocations(idUser);
   res.json(result);
 }));
 

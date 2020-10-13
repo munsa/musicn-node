@@ -22,9 +22,11 @@ profileRouter.get('/:username', auth, errorHandlerWrapper(async ({params: {usern
  * @access  Public
  */
 profileRouter.get('/:idUser/recordings', auth, errorHandlerWrapper(async ({params: {idUser}, query: {count}}, res) => {
+  const allGeolocations = await RecordingService.getAllUserGeolocations(idUser);
   const recordings = await RecordingService.getUserRecordings(idUser, parseInt(count));
   const maxCount = await RecordingService.getUserRecordingsCount(idUser);
   const result = {
+    allGeolocations,
     recordings,
     maxCount
   }
