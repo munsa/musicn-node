@@ -11,6 +11,8 @@ const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
 
 export module RecordingService {
+  const transientIdBlackList: String[] = [];
+
   /**
    * @name    identifyAudio
    * @param   buffer
@@ -18,13 +20,18 @@ export module RecordingService {
    * @param   geolocation
    * @return  Recording
    */
-  export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object) => {
+  export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object, transientId) => {
+    if(transientIdBlackList.includes(transientId)) {
+      throw new CustomError(CustomError.SAMPLE_ALREADY_FOUND);
+    }
+
     const acrCloudResult = await ACRCloudService.identify(buffer);
     const result = JSON.parse(acrCloudResult.body);
     console.log(result);
 
     switch (result.status.code) {
       case 0:
+        transientIdBlackList.push(transientId);
         const user = await UserService.getUserAvatarColorByUserId(idUser);
         let recordingObject = createRecordingObject(user, result.metadata.music[0], geolocation);
         await recordingObject.save();

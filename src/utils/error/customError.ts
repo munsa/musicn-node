@@ -46,6 +46,7 @@ export class CustomError extends Error {
   static readonly INVALID_EMAIL = 'Please include a valid email';
   static readonly REQUIRED_PASSWORD = 'Password is required';
   static readonly ERROR_SIGNING_TOKEN = 'An error occurred when signing the token';
+  static readonly SAMPLE_ALREADY_FOUND = 'Sample already found';
 
   //Auth
   static readonly USERNAME_ALREADY_EXISTS = 'Username already exists';

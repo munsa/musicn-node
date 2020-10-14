@@ -16,7 +16,8 @@ const recordingRouter = express.Router();
 let cpUpload = upload.fields([{ name: 'audio'}, {name: 'geolocation'}]);
 recordingRouter.post('/identify', auth, cpUpload, errorHandlerWrapper(async (req: any, res) => {
   const geolocation = JSON.parse(req.body.geolocation);
-  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id, geolocation);
+  const transientId = req.body.transientId;
+  const result = await RecordingService.identifyAudio(req.files.audio[0].buffer, req.user.id, geolocation, transientId);
   res.json(result);
 }));
 
