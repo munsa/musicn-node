@@ -73,7 +73,7 @@ export module UserService {
     }
 
     // Get Adorable Avatar
-    const avatar = 'https://api.adorable.io/avatars/285/' + email + '.png';
+    const avatar = process.env.BASE_URL + ':' + process.env.PORT +  '/avatar/' + username;
 
     let avatarColor = await getColorFromImage(avatar);
 

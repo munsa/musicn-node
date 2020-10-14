@@ -1,6 +1,7 @@
 import express from 'express';
 import {CustomError} from './utils/error/customError';
 import apiRouter from './routes';
+import avatarsMiddleware from 'adorable-avatars';
 
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -28,6 +29,9 @@ app.use(express.json());
 app.use(cors())
 
 app.get('/', (req, res) => res.send('API Running'));
+
+// Use Adorable Avatars
+app.use('/avatar', avatarsMiddleware);
 
 // Define Routes
 app.use(apiRouter);
