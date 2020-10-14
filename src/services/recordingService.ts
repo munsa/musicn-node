@@ -18,6 +18,7 @@ export module RecordingService {
    * @param   buffer
    * @param   idUser
    * @param   geolocation
+   * @param   transientId
    * @return  Recording
    */
   export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object, transientId) => {
