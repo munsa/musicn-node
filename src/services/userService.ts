@@ -73,7 +73,9 @@ export module UserService {
     }
 
     // Get Adorable Avatar
-    const avatar = process.env.BASE_URL + '/avatar/' + username;
+    const avatar = process.env.NODE_ENV == 'production'
+      ? process.env.BASE_URL + '/avatar/' + username
+      : process.env.BASE_URL + ':' + process.env.PORT + '/avatar/' + username;
 
     let avatarColor = await getColorFromImage(avatar);
 
