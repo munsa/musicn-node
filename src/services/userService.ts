@@ -113,10 +113,11 @@ export module UserService {
     };
 
     // Sign the token
+    // TODO: Lower time and implement Refresh token
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      {expiresIn: 3600},
+      {expiresIn: 18000},
       tokenCallback
     );
   }
