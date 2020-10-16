@@ -1,7 +1,9 @@
 import bcrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 import {CustomError} from '../utils/error/customError';
+import {getColorFromImage} from '../utils/generalFunctionsHelper';
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 const User = require('../models/User');
@@ -23,6 +25,15 @@ export module UserService {
    */
   export const getUserByUsername = async (username: string) => {
     return await User.findOne({username: username}).select('-password');
+  }
+
+  /**
+   * @name    getUserAvatarColorByUserId
+   * @param   idUser
+   * @return  User
+   */
+  export const getUserAvatarColorByUserId = async (idUser: number) => {
+    return await User.findById(idUser).select('avatarColor');
   }
 
   /**
@@ -62,20 +73,18 @@ export module UserService {
     }
 
     // Get Adorable Avatar
-    const avatar = 'https://api.adorable.io/avatars/285/' + email + '.png';
+    const avatar = process.env.NODE_ENV == 'production'
+      ? process.env.BASE_URL + '/avatar/' + username
+      : process.env.BASE_URL + ':' + process.env.PORT + '/avatar/' + username;
 
-    // Get Gravatar
-    /*const avatar = gravatar.url(email, {
-      s: '200',
-      r: 'pg',
-      d: 'mm'
-    });*/
+    let avatarColor = await getColorFromImage(avatar);
 
     // Create User object
     user = new User({
       username,
       email,
       avatar,
+      avatarColor,
       password
     });
 
@@ -104,10 +113,11 @@ export module UserService {
     };
 
     // Sign the token
+    // TODO: Lower time and implement Refresh token
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      {expiresIn: 3600},
+      {expiresIn: 18000},
       tokenCallback
     );
   }

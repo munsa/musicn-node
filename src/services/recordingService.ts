@@ -2,30 +2,41 @@ import {CustomError} from '../utils/error/customError';
 import {promisify} from 'util';
 import {v4} from 'uuid';
 import {ACRCloudService} from './acrCloudService';
+import {SpotifyService} from './spotifyService';
 import fs = require('fs');
 import path = require('path');
-import {SpotifyService} from './spotifyService';
+import UserService from './userService';
 
 const Recording = require('../models/Recording');
 const writeFile = promisify(fs.writeFile);
 
 export module RecordingService {
+  const transientIdBlackList: String[] = [];
+
   /**
    * @name    identifyAudio
    * @param   buffer
    * @param   idUser
    * @param   geolocation
+   * @param   transientId
    * @return  Recording
    */
-  export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object) => {
+  export const identifyAudio = async (buffer: Buffer, idUser: number, geolocation: object, transientId) => {
+    if(transientIdBlackList.includes(transientId)) {
+      throw new CustomError(CustomError.SAMPLE_ALREADY_FOUND);
+    }
+
     const acrCloudResult = await ACRCloudService.identify(buffer);
     const result = JSON.parse(acrCloudResult.body);
     console.log(result);
 
     switch (result.status.code) {
       case 0:
-        let recordingObject = createRecordingObject(idUser, result.metadata.music[0], geolocation);
+        transientIdBlackList.push(transientId);
+        const user = await UserService.getUserAvatarColorByUserId(idUser);
+        let recordingObject = createRecordingObject(user, result.metadata.music[0], geolocation);
         await recordingObject.save();
+        recordingObject.user.avatarColor = user.avatarColor;
 
         return await SpotifyService.getSpotifyTrackInformation(recordingObject.toObject());
       case 1001:
@@ -46,9 +57,9 @@ export module RecordingService {
    * @param   geolocation
    * @return  Recording
    */
-  const createRecordingObject = (idUser: number, music: any, geolocation: object) => {
+  const createRecordingObject = (user: any, music: any, geolocation: object) => {
     return new Recording({
-      user: idUser,
+      user,
       acrid: music.acrid,
       genres: music.genres?.map(g => {
         return g['name']
@@ -92,7 +103,7 @@ export module RecordingService {
   export const writeWavFile = (buffer: Buffer): void => {
     const messageId = v4();
     writeFile('./temp/' + messageId + '.wav', new Buffer(buffer), 'base64').then(() => {
-      let filename = './../../temp/' + messageId + '.wav';
+      let filename = './temp/' + messageId + '.wav';
       let bitmap: Buffer = fs.readFileSync(path.resolve(__dirname, filename));
       //identifyAudio(bitmap);
     }).catch(err => {
@@ -107,10 +118,14 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getUserRecordings = async (idUser: number, count: number) => {
-    const userRecordings = await Recording.find({user: idUser}).skip(count).limit(20).sort('-date');
+    const userRecordings = await Recording.find({user: idUser}).populate('user', 'avatarColor').skip(count).limit(20).sort('-date');
     const userRecordingsObject = userRecordings.map(r => r.toObject());
 
-    await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
+    try {
+      await SpotifyService.getSpotifyTracksInformation(userRecordingsObject);
+    } catch (e) {
+     console.log(e);
+    }
 
     return userRecordingsObject;
   }
@@ -129,7 +144,15 @@ export module RecordingService {
    * @return  Recording[]
    */
   export const getAllGeolocations = async () => {
-    return await Recording.find(null, 'geolocation').populate('user', 'avatar');
+    return await Recording.find(null, 'geolocation').populate('user', 'avatarColor');
+  }
+
+  /**
+   * @name    getAllGeolocations
+   * @return  Recording[]
+   */
+  export const getAllUserGeolocations = async (idUser) => {
+    return await Recording.find({user: idUser}, 'geolocation').populate('user', 'avatarColor');
   }
 
   /**
@@ -142,5 +165,35 @@ export module RecordingService {
     const recordingObject = recording.toObject();
     await SpotifyService.getSpotifyTrackInformation(recordingObject);
     return recordingObject;
+  }
+
+  /**
+   * @name    getTopListFromGenre
+   * @param   genreName
+   * @param   limit
+   * @return  Recording
+   */
+  export const getTopListFromGenre = async (genreName, limit) => {
+    const test = await Recording.find({genres: genreName});
+    const recordings = await Recording.aggregate(
+      [
+        {'$match': {'genres': genreName}},
+        {'$group': {'_id': '$acrid', 'count': {'$sum': 1.0}}},
+        {'$sort': {'count': -1.0}},
+        {'$limit': limit},
+        {'$lookup': {'from': 'recordings', 'localField': '_id', 'foreignField': 'acrid', 'as': 'recording'}},
+        {
+          '$project': {
+            '_id': 0.0,
+            'count': true,
+            'acrid': {'$arrayElemAt': ['$recording.acrid', 0.0]},
+            'acrCloud': {'$arrayElemAt': ['$recording.acrCloud', 0.0]},
+            'spotify': {'$arrayElemAt': ['$recording.spotify', 0.0]},
+            'deezer': {'$arrayElemAt': ['$recording.deezer', 0.0]}
+          }
+        }
+      ]);
+    await SpotifyService.getSpotifyTracksInformation(recordings);
+    return recordings;
   }
 }

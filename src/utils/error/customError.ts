@@ -37,7 +37,7 @@ export class CustomError extends Error {
   // ERROR MESSAGES
   static readonly INTERNAL_SERVER_ERROR = 'Server error';
   static readonly CANT_GENERATE_FINGERPRINT = 'Can\'t generate fingerprint';
-  static readonly REQUESTS_LIMIT_EXCEEDED = 'Requests limit exceded';
+  static readonly REQUESTS_LIMIT_EXCEEDED = 'Requests limit exceeded';
   static readonly UNKNOWN_ACRCLOUD_API_ERROR = 'Unknown ACRCloud error';
   static readonly USER_NOT_FOUND = 'User not found';
   static readonly NOT_FOUND = 'Not found';
@@ -46,6 +46,7 @@ export class CustomError extends Error {
   static readonly INVALID_EMAIL = 'Please include a valid email';
   static readonly REQUIRED_PASSWORD = 'Password is required';
   static readonly ERROR_SIGNING_TOKEN = 'An error occurred when signing the token';
+  static readonly SAMPLE_ALREADY_FOUND = 'Sample already found';
 
   //Auth
   static readonly USERNAME_ALREADY_EXISTS = 'Username already exists';
