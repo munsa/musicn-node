@@ -1,7 +1,7 @@
 {
-  "name": "musicn",
+  "name": "wildtunes-node",
   "version": "1.0.0",
-  "description": "MUSICN - Social network for music recognition - Node backend",
+  "description": "WildTunes - Music social network with audio fingerprint recognition.",
   "keywords": [
     "music",
     "recognition",
@@ -10,16 +10,16 @@
     "acoustic",
     "fingerprint"
   ],
-  "homepage": "https://github.com/munsa/musicn-node#readme",
+  "homepage": "https://github.com/munsa/wildtunes-node#readme",
   "bugs": {
-    "url": "https://github.com/munsa/musicn-node/issues"
+    "url": "https://github.com/munsa/wildtunes-node/issues"
   },
   "license": "LGPL-3.0-only",
   "author": "Marc Monserrat Núñez <mmonserrat90@gmail.com>",
   "browser": "server.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/munsa/musicn-node.git"
+    "url": "git+https://github.com/munsa/wildtunes-node.git"
   },
   "scripts": {
     "start": "tsc && node ./build/index.js",
