@@ -1,2 +1,5 @@
-# musicn-node
-MUSICN - Social network for music recognition - Node backend
+# wildtunes-node
+WildTunes
+Music social network with audio fingerprint recognition.
+
+In construction
